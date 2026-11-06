@@ -2,6 +2,7 @@
 // Alle Handys teilen dasselbe Brett. Nachfallende Steine kommen aus einem gemeinsamen Zufallsgenerator,
 // deshalb kann jedes Handy einen Zug selbst nachspielen und animieren.
 const M3 = { N: 7, C: 6 };
+const M3_ZOO = ["#ff8a80", "#ffb74d", "#fff176", "#a5e887", "#90caf9", "#d1a6ff"].map((c, i) => [c, ["🐸", "🦊", "🐥", "🐢", "🐳", "🐙"][i]]);
 const M3_GEMS = [["#ff5a5a", "●"], ["#ff9f1c", "▲"], ["#ffd23f", "★"], ["#3ddc84", "◆"], ["#4ea8ff", "■"], ["#b07cff", "✚"]];
 
 function m3Rng(seed){
@@ -57,9 +58,9 @@ function m3Resolve(before, i, j, seed){
 const m3Enc = b => b.join(""), m3Dec = s => String(s || "").split("").map(Number);
 
 /* --- Spielstand --- */
-function m3New(teams, rounds){
+function m3New(teams, rounds, zoo){
   const R = m3Rng(Math.floor(Math.random() * 2 ** 31)), b = m3Gen(R);
-  return { id: Date.now(), phase: "play", teams, rounds, round: 1, k: 0, moves: 2, score: { A: 0, B: 0 }, b: m3Enc(b), seed: R.s, last: null, n: 0 };
+  return { id: Date.now(), zoo: !!zoo, phase: "play", teams, rounds, round: 1, k: 0, moves: 2, score: { A: 0, B: 0 }, b: m3Enc(b), seed: R.s, last: null, n: 0 };
 }
 function m3TurnsPerRound(g){ return 2 * Math.max(1, gsArr(g.teams?.A).length, gsArr(g.teams?.B).length); }
 function m3Turn(g){
@@ -82,8 +83,8 @@ function m3BoardHTML(){
   const v = m3.view; if (!v) return "";
   const fr = m3.anim ? m3.anim.frames[m3.anim.k] : { b: v.b, clear: [] }, clear = new Set(fr.clear);
   return fr.b.map((x, i) => {
-    const [col, sym] = M3_GEMS[x] || ["transparent", ""];
-    return `<button class="gem${clear.has(i) ? " pop" : ""}${!m3.anim && i === m3.sel ? " sel" : ""}" data-i="${i}" style="--g:${col}" aria-label="Stein ${i + 1}">${sym}</button>`;
+    const [col, sym] = (v.zoo ? M3_ZOO : M3_GEMS)[x] || ["transparent", ""];
+    return `<button class="gem${v.zoo ? " zoo" : ""}${clear.has(i) ? " pop" : ""}${!m3.anim && i === m3.sel ? " sel" : ""}" data-i="${i}" style="--g:${col}" aria-label="Stein ${i + 1}">${sym}</button>`;
   }).join("");
 }
 function m3Draw(){ const el = $("#m3board"); if (el) el.innerHTML = m3BoardHTML(); }
@@ -149,13 +150,13 @@ function m3Body(opt){
 }
 function m3Mount(opt){
   const g = opt.g;
-  m3Wire({ b: m3Dec(g.b), canMove: g.phase === "play" && opt.canMove && !opt.hold, onMove: opt.onMove, afterAnim: opt.redraw });
+  m3Wire({ zoo: !!g.zoo, b: m3Dec(g.b), canMove: g.phase === "play" && opt.canMove && !opt.hold, onMove: opt.onMove, afterAnim: opt.redraw });
   m3Animate(g);
   $("#m3Again") && ($("#m3Again").onclick = opt.onAgain);
   $("#m3Setup") && ($("#m3Setup").onclick = opt.onSetup);
 }
 const m3Pending = g => !!(g.last && m3.seenN !== null && g.last.n !== m3.seenN) || !!m3.anim;
-const m3Settings = rounds => `<div class="field"><span class="label">Runden</span><div class="chips">${[3, 5, 8].map(n => `<button class="chip" data-rounds="${n}" aria-pressed="${rounds === n}">${n}</button>`).join("")}</div></div>`;
+const m3Settings = (rounds, zoo) => `<div class="field"><span class="label">Look</span><div class="chips"><button class="chip" data-zoo="0" aria-pressed="${!zoo}">◆ Steine</button><button class="chip" data-zoo="1" aria-pressed="${!!zoo}">🐸 Tiere</button></div></div><div class="field"><span class="label">Runden</span><div class="chips">${[3, 5, 8].map(n => `<button class="chip" data-rounds="${n}" aria-pressed="${rounds === n}">${n}</button>`).join("")}</div></div>`;
 
 /* --- Teams wählen (online) --- */
 function teamSetup(key, title, intro, settingsHTML, wireSettings, start){
@@ -184,15 +185,15 @@ function teamSetup(key, title, intro, settingsHTML, wireSettings, start){
 function oM3(){
   const room = on.room, host = isHost(), g = room.m3 || {};
   if (g.phase === "setup" || !g.phase) return teamSetup("m3", "Tauschduell", "Tauscht abwechselnd Steine auf demselben Brett. 1 gegen 1, 2 gegen 2 oder größere Teams.",
-    g => m3Settings(g.rounds || 5), () => app.querySelectorAll("[data-rounds]").forEach(b => b.onclick = () => up({ "m3/rounds": +b.dataset.rounds })),
-    (g, teams) => up({ m3: m3New(teams, g.rounds || 5) }));
+    g => m3Settings(g.rounds || 5, g.zoo), () => { app.querySelectorAll("[data-rounds]").forEach(b => b.onclick = () => up({ "m3/rounds": +b.dataset.rounds })); app.querySelectorAll("[data-zoo]").forEach(b => b.onclick = () => up({ "m3/zoo": b.dataset.zoo === "1" })); },
+    (g, teams) => up({ m3: m3New(teams, g.rounds || 5, g.zoo) }));
   const { team, who } = m3Turn(g), list = gsArr(g.teams?.[team]), absent = who && !room.players[who];
   const canMove = g.phase === "play" && (who === me || (absent && (list.includes(me) || host)));
-  const toSetup = () => up({ m3: { phase: "setup", teams: g.teams, rounds: g.rounds } });
+  const toSetup = () => up({ m3: { phase: "setup", teams: g.teams, rounds: g.rounds, zoo: !!g.zoo } });
   const opt = {
     g, mine: who === me, canMove, canLead: host, nameOf: id => pname(room, id), hold: m3Pending(g), redraw: () => on.room?.game === "m3" && renderRoom(),
     onMove: (i, j) => up({ m3: m3Move(on.room.m3, i, j, me) }),
-    onAgain: () => up({ m3: m3New(g.teams, g.rounds) }), onSetup: toSetup
+    onAgain: () => up({ m3: m3New(g.teams, g.rounds, g.zoo) }), onSetup: toSetup
   };
   app.innerHTML = roomBar("Tauschduell") + m3Body(opt) + (host && g.phase !== "over" ? `<button class="btn ghost block" id="m3Setup2">Teams ändern (Spiel neu)</button>` : "");
   m3Mount(opt);
@@ -200,20 +201,21 @@ function oM3(){
 }
 
 /* --- Auf einem Handy --- */
-const m3Local = { g: null, rounds: 5 };
+const m3Local = { g: null, rounds: 5, zoo: false };
 function tauschduell(){
-  const back = `<div class="bar"><a href="#" class="back" style="color:inherit;text-decoration:none">← Start</a><h3>Tauschduell</h3></div>`, g = m3Local.g;
+  const back = `<div class="bar"><a href="#duelle" class="back" style="color:inherit;text-decoration:none">← Duelle</a><h3>Tauschduell</h3></div>`, g = m3Local.g;
   if (!g) {
     app.innerHTML = back + `<p class="muted">Team Rot gegen Team Gelb auf einem Handy: Wer dran ist, nimmt das Handy und macht seine 2 Züge. Mit eigenen Handys geht es über „Zusammen spielen“.</p>
-      <div class="card">${m3Settings(m3Local.rounds)}</div><button class="btn block" id="m3Go">Spiel starten</button>`;
+      <div class="card">${m3Settings(m3Local.rounds, m3Local.zoo)}</div><button class="btn block" id="m3Go">Spiel starten</button>`;
     app.querySelectorAll("[data-rounds]").forEach(b => b.onclick = () => { m3Local.rounds = +b.dataset.rounds; tauschduell(); });
-    $("#m3Go").onclick = () => { m3.seenN = null; m3Local.g = m3New({ A: [], B: [] }, m3Local.rounds); tauschduell(); };
+    app.querySelectorAll("[data-zoo]").forEach(b => b.onclick = () => { m3Local.zoo = b.dataset.zoo === "1"; tauschduell(); });
+    $("#m3Go").onclick = () => { m3.seenN = null; m3Local.g = m3New({ A: [], B: [] }, m3Local.rounds, m3Local.zoo); tauschduell(); };
     return;
   }
   const set = ng => { m3Local.g = ng; tauschduell(); };
   const opt = {
     g, mine: false, canMove: true, canLead: true, nameOf: () => "", hold: m3Pending(g), redraw: () => location.hash === "#tauschduell" && tauschduell(),
-    onMove: (i, j) => set(m3Move(m3Local.g, i, j, "")), onAgain: () => set(m3New(g.teams, g.rounds)), onSetup: () => set(null)
+    onMove: (i, j) => set(m3Move(m3Local.g, i, j, "")), onAgain: () => set(m3New(g.teams, g.rounds, g.zoo)), onSetup: () => set(null)
   };
   app.innerHTML = back + m3Body(opt) + (g.phase !== "over" ? `<button class="btn ghost block" id="m3Setup2">Spiel abbrechen</button>` : "");
   m3Mount(opt);
