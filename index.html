@@ -73,7 +73,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .tile.wide{grid-column:1/-1;min-height:0}
 .t-imp .glyph{color:var(--coral)} .t-dice .glyph{color:var(--marigold)} .t-ttt .glyph{color:var(--sky)} .t-nie .glyph{color:var(--mint)} .t-slide .glyph{color:#9ad9f5}
 .iceslot{display:flex;justify-content:center}
-.t-m3 .glyph{color:#b07cff} .t-code .glyph{color:#3ddc84}
+.t-m3 .glyph{color:#b07cff} .t-duel .glyph{color:var(--coral)} .t-code .glyph{color:#3ddc84}
 .m3board{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:4px;background:var(--panel);padding:8px;border-radius:var(--r);touch-action:none;user-select:none;-webkit-user-select:none}
 .gem{aspect-ratio:1;border-radius:12px;background:var(--g);color:rgba(20,10,30,.55);font-size:clamp(.9rem,4.6vw,1.4rem);font-weight:800;display:grid;place-items:center;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);transition:transform .15s,opacity .2s}
 .gem.sel{outline:3px solid #fff;outline-offset:1px;transform:scale(.9)}
@@ -213,15 +213,23 @@ function home(){
   </a>
   <span class="label">Auf einem Handy</span>
   <nav class="tiles">
+    <a href="#duelle" class="tile t-duel wide" style="color:inherit;text-decoration:none"><span class="glyph">⚔</span><h3>Duelle</h3><p>Tic-Tac-Toe, Gleitstein, Tauschduell und Codeknacker. 1 gegen 1 oder Team gegen Team.</p><span class="pill">4 Spiele</span></a>
     <a href="#imposter" class="tile t-imp" style="color:inherit;text-decoration:none"><span class="glyph">?!</span><h3>Imposter</h3><p>Alle kennen das Wort, außer einer.</p><span class="pill">3–12 Spieler</span></a>
     <a href="#wuerfel" class="tile t-dice" style="color:inherit;text-decoration:none"><span class="glyph">⚂⚄⚅</span><h3>Chicago</h3><p>1 zählt 100, 6 zählt 60. Wer 113 hat, trinkt.</p><span class="pill">2–12 Spieler</span></a>
-    <a href="#tictactoe" class="tile t-ttt" style="color:inherit;text-decoration:none"><span class="glyph">✕○</span><h3>Tic-Tac-Toe</h3><p>Zu zweit, mit Punktestand.</p><span class="pill">2 Spieler</span></a>
-    <a href="#nie" class="tile t-nie" style="color:inherit;text-decoration:none"><span class="glyph">!</span><h3>Ich hab noch nie</h3><p>Party, Ü18 oder Casual. Plus Wahrheit oder Pflicht.</p><span class="pill">${NEVER.length+TRUTH.length+DARE.length} Karten</span></a>
-    <a href="#gleiter" class="tile t-slide wide" style="color:inherit;text-decoration:none"><span class="glyph">◉</span><h3>Gleitstein</h3><p>Steine übers Eis schnippen, gegnerische wegschießen. Team Rot gegen Team Gelb.</p><span class="pill">2 Teams</span></a>
-    <a href="#tauschduell" class="tile t-m3" style="color:inherit;text-decoration:none"><span class="glyph">◆★●</span><h3>Tauschduell</h3><p>Steine tauschen, Reihen abräumen, mehr Punkte als das andere Team.</p><span class="pill">2 Teams</span></a>
-    <a href="#codeknacker" class="tile t-code" style="color:inherit;text-decoration:none"><span class="glyph">●●○</span><h3>Codeknacker</h3><p>Knackt den geheimen Farbcode in höchstens 10 Versuchen.</p><span class="pill">1–2 Spieler</span></a>
+    <a href="#nie" class="tile t-nie wide" style="color:inherit;text-decoration:none"><span class="glyph">!</span><h3>Ich hab noch nie</h3><p>Party, Ü18 oder Casual. Plus Wahrheit oder Pflicht.</p><span class="pill">${NEVER.length+TRUTH.length+DARE.length} Karten</span></a>
   </nav>
   <a href="#statistik" class="tile wide" style="color:inherit;text-decoration:none;flex-direction:row;align-items:center;min-height:0"><span class="glyph" style="font-size:1.8rem;color:var(--mint)">▲▼</span><div><h3>Deine Statistik</h3><p>Siege und Niederlagen aus Online-Spielen, gegen wen und wann.</p></div></a>`;
+}
+
+function duelle(){
+  app.innerHTML = `<div class="bar"><a href="#" class="back" style="color:inherit;text-decoration:none">← Start</a><h3>Duelle</h3></div>
+  <p class="muted">Auf einem Handy zum Weitergeben. Gegeneinander mit eigenen Handys geht es über „Zusammen spielen“, dann zählt es auch für deine Statistik.</p>
+  <nav class="tiles">
+    <a href="#tictactoe" class="tile t-ttt" style="color:inherit;text-decoration:none"><span class="glyph">✕○</span><h3>Tic-Tac-Toe</h3><p>Zu zweit, mit Punktestand.</p><span class="pill">1 gegen 1</span></a>
+    <a href="#codeknacker" class="tile t-code" style="color:inherit;text-decoration:none"><span class="glyph">●●○</span><h3>Codeknacker</h3><p>Knackt den geheimen Farbcode in höchstens 10 Versuchen.</p><span class="pill">1 gegen 1</span></a>
+    <a href="#tauschduell" class="tile t-m3" style="color:inherit;text-decoration:none"><span class="glyph">◆★●</span><h3>Tauschduell</h3><p>Steine tauschen, Reihen abräumen, mehr Punkte als das andere Team.</p><span class="pill">1 gegen 1 · 2 gegen 2</span></a>
+    <a href="#gleiter" class="tile t-slide" style="color:inherit;text-decoration:none"><span class="glyph">◉</span><h3>Gleitstein</h3><p>Steine übers Eis schnippen, gegnerische wegschießen.</p><span class="pill">1 gegen 1 · 2 gegen 2</span></a>
+  </nav>`;
 }
 
 /* ---------- Imposter ---------- */
