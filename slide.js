@@ -51,7 +51,7 @@ function gsScore(stones){
 
 /* --- Spielstand --- */
 function gsNew(teams, ends, per){
-  return { phase: "play", teams, ends, per, end: 1, score: { A: 0, B: 0 }, first: "A", k: 0, stones: [], shot: null, n: 0, res: null };
+  return { id: Date.now(), phase: "play", teams, ends, per, end: 1, score: { A: 0, B: 0 }, first: "A", k: 0, stones: [], shot: null, n: 0, res: null };
 }
 function gsTurn(g){
   const team = g.k % 2 === 0 ? g.first : otherTeam(g.first);

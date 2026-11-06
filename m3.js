@@ -59,7 +59,7 @@ const m3Enc = b => b.join(""), m3Dec = s => String(s || "").split("").map(Number
 /* --- Spielstand --- */
 function m3New(teams, rounds){
   const R = m3Rng(Math.floor(Math.random() * 2 ** 31)), b = m3Gen(R);
-  return { phase: "play", teams, rounds, round: 1, k: 0, moves: 2, score: { A: 0, B: 0 }, b: m3Enc(b), seed: R.s, last: null, n: 0 };
+  return { id: Date.now(), phase: "play", teams, rounds, round: 1, k: 0, moves: 2, score: { A: 0, B: 0 }, b: m3Enc(b), seed: R.s, last: null, n: 0 };
 }
 function m3TurnsPerRound(g){ return 2 * Math.max(1, gsArr(g.teams?.A).length, gsArr(g.teams?.B).length); }
 function m3Turn(g){
