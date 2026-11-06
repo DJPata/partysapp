@@ -61,7 +61,7 @@ function enterRoom(code){
     if (!room || !room.players?.[me]) { on.room = null; leaveSub(); store.set("room", null); raumStart(); if (room === null) $("#err").textContent = "Der Raum wurde geschlossen."; else $("#err").textContent = "Du bist nicht mehr im Raum."; return; }
     // Wenn der Host weg ist, übernimmt der nächste Spieler
     if (!room.players[room.host]) { const next = playersOf(room)[0]; if (next?.id === me) up({ host: me }); }
-    on.room = room; renderRoom();
+    on.room = room; stCheck(room, code); renderRoom();
   });
 }
 function leaveSub(){ if (on.unsub) on.unsub(); on.unsub = null; clearInterval(on.tick); on.tick = null; }
@@ -317,7 +317,7 @@ function raum(){
   if (q) history.replaceState(null, "", location.pathname + "#raum");
   raumStart(q ? q.toUpperCase() : "");
 }
-const routes = { "": home, imposter, wuerfel, tictactoe, nie, gleiter, tauschduell, codeknacker, raum };
+const routes = { "": home, imposter, wuerfel, tictactoe, nie, gleiter, tauschduell, codeknacker, statistik, raum };
 function route(){
   clearInterval(impTimer); impTimer = null;
   const h = location.hash.slice(1);
