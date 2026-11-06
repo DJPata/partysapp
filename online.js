@@ -83,7 +83,9 @@ function wireBar(){
 function renderRoom(){
   clearInterval(on.tick); on.tick = null;
   const g = on.room.game;
-  const view = { imposter: oImposter, wuerfel: oDice, tictactoe: oTtt, nie: oNie }[g] || oLobby;
+  const view = { imposter: oImposter, wuerfel: oDice, tictactoe: oTtt, nie: oNie, slide: oSlide, m3: oM3, code: oCode }[g] || oLobby;
+  if (g !== "m3") { m3.seenN = null; clearTimeout(m3.anim?.t); m3.anim = null; }
+  if (g !== "slide") gs.simN = null;
   // Eingaben nicht zerstören, während jemand tippt
   const a = document.activeElement; if (a && a.tagName === "INPUT" && a.type === "text" && app.contains(a)) return;
   view(); wireBar();
@@ -96,7 +98,10 @@ function oLobby(){
     ["imposter", "?!", "Imposter", "Jeder sieht seine Karte auf dem eigenen Handy.", "t-imp", 3],
     ["wuerfel", "⚂⚄⚅", "Chicago", "Jeder würfelt selbst, alle sehen live mit.", "t-dice", 2],
     ["tictactoe", "✕○", "Tic-Tac-Toe", "Zwei spielen, alle schauen zu.", "t-ttt", 2],
-    ["nie", "!", "Ich hab noch nie", "Gemeinsame Karte für alle.", "t-nie", 1]
+    ["nie", "!", "Ich hab noch nie", "Gemeinsame Karte für alle.", "t-nie", 1],
+    ["slide", "◉", "Gleitstein", "Steine übers Eis schnippen, 2 gegen 2.", "t-slide", 2],
+    ["m3", "◆★●", "Tauschduell", "Steine tauschen, Reihen abräumen, Team gegen Team.", "t-m3", 2],
+    ["code", "●●○", "Codeknacker", "Knackt gegenseitig eure Farbcodes, 1 gegen 1.", "t-code", 2]
   ];
   app.innerHTML = roomBar("Raum") + `
   <div class="card" style="text-align:center;align-items:center">
@@ -126,6 +131,9 @@ function startGame(g){
   }
   if (g === "wuerfel") return up({ game: g, dice: newDiceRound(ps.map(p => p.id), 1) });
   if (g === "tictactoe") return up({ game: g, ttt: room.ttt || { b: ".........", turn: "X", start: "X", score: { X: 0, O: 0, D: 0 }, over: false } });
+  if (g === "slide") { const o = room.slide; return up({ game: g, slide: o?.phase && o.phase !== "setup" ? o : { phase: "setup", teams: o?.teams || null, ends: o?.ends || 4, per: o?.per || 4 } }); }
+  if (g === "m3") { const o = room.m3; return up({ game: g, m3: o?.phase && o.phase !== "setup" ? o : { phase: "setup", teams: o?.teams || null, rounds: o?.rounds || 5 } }); }
+  if (g === "code") return up({ game: g, code: room.code || { wins: { p1: 0, p2: 0 } } });
   if (g === "nie") return up({ game: g, nie: room.nie || { kind: "party", text: pick(NEVER_CATS.party), n: 1 } });
 }
 
@@ -309,10 +317,12 @@ function raum(){
   if (q) history.replaceState(null, "", location.pathname + "#raum");
   raumStart(q ? q.toUpperCase() : "");
 }
-const routes = { "": home, imposter, wuerfel, tictactoe, nie, raum };
+const routes = { "": home, imposter, wuerfel, tictactoe, nie, gleiter, tauschduell, codeknacker, raum };
 function route(){
   clearInterval(impTimer); impTimer = null;
   const h = location.hash.slice(1);
+  if (h !== "gleiter") gs.simN = null;
+  if (h !== "tauschduell" && !on.code) { m3.seenN = null; clearTimeout(m3.anim?.t); m3.anim = null; }
   if (h !== "raum" && on.code) { leaveSub(); on.code = null; on.room = null; }
   (routes[h] || home)(); window.scrollTo(0, 0);
 }
