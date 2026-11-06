@@ -83,7 +83,7 @@ function wireBar(){
 function renderRoom(){
   clearInterval(on.tick); on.tick = null;
   const g = on.room.game;
-  const view = { imposter: oImposter, wuerfel: oDice, tictactoe: oTtt, nie: oNie, slide: oSlide, m3: oM3, code: oCode }[g] || oLobby;
+  const view = { imposter: oImposter, wuerfel: oDice, tictactoe: oTtt, nie: oNie, slide: oSlide, m3: oM3, code: oCode, dots: oDots, rev: oRev }[g] || oLobby;
   if (g !== "m3") { m3.seenN = null; clearTimeout(m3.anim?.t); m3.anim = null; }
   if (g !== "slide") gs.simN = null;
   // Eingaben nicht zerstören, während jemand tippt
@@ -101,7 +101,9 @@ function oLobby(){
     ["nie", "!", "Ich hab noch nie", "Gemeinsame Karte für alle.", "t-nie", 1],
     ["slide", "◉", "Gleitstein", "Steine übers Eis schnippen, 2 gegen 2.", "t-slide", 2],
     ["m3", "◆★●", "Tauschduell", "Steine tauschen, Reihen abräumen, Team gegen Team.", "t-m3", 2],
-    ["code", "●●○", "Codeknacker", "Knackt gegenseitig eure Farbcodes, 1 gegen 1.", "t-code", 2]
+    ["code", "●●○", "Codeknacker", "Knackt gegenseitig eure Farbcodes, 1 gegen 1.", "t-code", 2],
+    ["dots", "⊞", "Käsekästchen", "Linien ziehen, Kästchen schließen, 1 gegen 1.", "t-dots", 2],
+    ["rev", "◐", "Wendesteine", "Steine einkesseln und umdrehen, 1 gegen 1.", "t-rev", 2]
   ];
   app.innerHTML = roomBar("Raum") + `
   <div class="card" style="text-align:center;align-items:center">
@@ -112,7 +114,7 @@ function oLobby(){
   </div>
   <div class="field"><span class="label">Dabei (${ps.length})</span>
     <div class="hist">${ps.map(p => `<div><span>${esc(p.name)}${p.id === me ? " (du)" : ""}</span><span>${p.id === room.host ? `<span class="pill">Spielleitung</span>` : host ? `<button class="pill" data-kick="${p.id}">Entfernen</button>` : ""}</span></div>`).join("")}</div></div>
-  ${host ? (() => { const DUEL = ["tictactoe", "code", "m3", "slide"], tile = ([id, gl, t, d, cls, min]) => `<button class="tile ${cls}" data-game="${id}" ${ps.length < min ? "disabled style=\"opacity:.5\"" : ""}><span class="glyph">${gl}</span><h3>${t}</h3><p>${ps.length < min ? `Ab ${min} Spielern` : d}</p></button>`;
+  ${host ? (() => { const DUEL = ["tictactoe", "code", "m3", "slide", "dots", "rev"], tile = ([id, gl, t, d, cls, min]) => `<button class="tile ${cls}" data-game="${id}" ${ps.length < min ? "disabled style=\"opacity:.5\"" : ""}><span class="glyph">${gl}</span><h3>${t}</h3><p>${ps.length < min ? `Ab ${min} Spielern` : d}</p></button>`;
     return `<div class="field"><span class="label">Party</span><div class="tiles">${games.filter(g => !DUEL.includes(g[0])).map(tile).join("")}</div></div>
     <div class="field"><span class="label">Duelle</span><div class="tiles">${games.filter(g => DUEL.includes(g[0])).map(tile).join("")}</div></div>`; })()
   : `<div class="note" style="text-align:center">${esc(pname(room, room.host))} wählt gleich ein Spiel aus.</div>`}`;
@@ -134,7 +136,8 @@ function startGame(g){
   if (g === "wuerfel") return up({ game: g, dice: newDiceRound(ps.map(p => p.id), 1) });
   if (g === "tictactoe") return up({ game: g, ttt: room.ttt || { b: ".........", turn: "X", start: "X", score: { X: 0, O: 0, D: 0 }, over: false } });
   if (g === "slide") { const o = room.slide; return up({ game: g, slide: o?.phase && o.phase !== "setup" ? o : { phase: "setup", teams: o?.teams || null, ends: o?.ends || 4, per: o?.per || 4 } }); }
-  if (g === "m3") { const o = room.m3; return up({ game: g, m3: o?.phase && o.phase !== "setup" ? o : { phase: "setup", teams: o?.teams || null, rounds: o?.rounds || 5 } }); }
+  if (g === "m3") { const o = room.m3; return up({ game: g, m3: o?.phase && o.phase !== "setup" ? o : { phase: "setup", teams: o?.teams || null, rounds: o?.rounds || 5, zoo: !!o?.zoo } }); }
+  if (g === "dots" || g === "rev") return up({ game: g, [g]: room[g] || { wins: { a: 0, b: 0, d: 0 } } });
   if (g === "code") return up({ game: g, code: room.code || { wins: { p1: 0, p2: 0 } } });
   if (g === "nie") return up({ game: g, nie: room.nie || { kind: "party", text: pick(NEVER_CATS.party), n: 1 } });
 }
@@ -319,7 +322,7 @@ function raum(){
   if (q) history.replaceState(null, "", location.pathname + "#raum");
   raumStart(q ? q.toUpperCase() : "");
 }
-const routes = { "": home, imposter, wuerfel, tictactoe, nie, duelle, gleiter, tauschduell, codeknacker, statistik, raum };
+const routes = { "": home, imposter, wuerfel, tictactoe, nie, duelle, gleiter, tauschduell, codeknacker, kaesekaestchen, wendesteine, statistik, raum };
 function route(){
   clearInterval(impTimer); impTimer = null;
   const h = location.hash.slice(1);

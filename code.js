@@ -95,7 +95,7 @@ function oCode(){
 /* --- Auf einem Handy --- */
 const ckLocal = { secret: null, guesses: [], hidden: false, setting: false };
 function codeknacker(){
-  const back = `<div class="bar"><a href="#" class="back" style="color:inherit;text-decoration:none">← Start</a><h3>Codeknacker</h3></div>`, L = ckLocal;
+  const back = `<div class="bar"><a href="#duelle" class="back" style="color:inherit;text-decoration:none">← Duelle</a><h3>Codeknacker</h3></div>`, L = ckLocal;
   if (L.setting) {
     app.innerHTML = back + `<div class="turn"><span class="label">Geheim</span><h2>Leg den Code fest</h2><span class="muted">Danach gibst du das Handy weiter.</span></div>${ckInput("Geheimcode", "Code festlegen")}`;
     ckWireInput(code => { Object.assign(L, { secret: code, guesses: [], setting: false }); codeknacker(); }, codeknacker);

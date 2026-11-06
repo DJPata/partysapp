@@ -267,7 +267,7 @@ function oSlide(){
 /* --- Auf einem Handy: Handy wird zwischen den Teams weitergegeben --- */
 const gsLocal = { g: null, ends: 4, per: 4 };
 function gleiter(){
-  const back = `<div class="bar"><a href="#" class="back" style="color:inherit;text-decoration:none">← Start</a><h3>Gleitstein</h3></div>`;
+  const back = `<div class="bar"><a href="#duelle" class="back" style="color:inherit;text-decoration:none">← Duelle</a><h3>Gleitstein</h3></div>`;
   const g = gsLocal.g;
   if (!g) {
     app.innerHTML = back + `

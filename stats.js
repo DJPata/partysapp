@@ -1,5 +1,5 @@
 /* ---------- Statistik: Ergebnisse der Online-Spiele werden auf diesem Handy gespeichert ---------- */
-const ST_GAMES = { m3: "Tauschduell", slide: "Gleitstein", code: "Codeknacker", tictactoe: "Tic-Tac-Toe" };
+const ST_GAMES = { m3: "Tauschduell", slide: "Gleitstein", code: "Codeknacker", tictactoe: "Tic-Tac-Toe", dots: "Käsekästchen", rev: "Wendesteine" };
 const stList = () => { const l = store.get("stats", []); return Array.isArray(l) ? l : []; };
 function stAdd(rec){
   const l = stList(); if (l.some(r => r.id === rec.id)) return;
@@ -23,6 +23,10 @@ function stCheck(room, code){
       if (!ckDone(target("p1"), gu.p1) || !ckDone(target("p2"), gu.p2)) return;
       const n = x => ckSolved(target(x), gu[x]) ? gu[x].length : 99, a = n(s), b = n(o);
       stAdd({ id: `${base}:${c.secret.p1}${c.secret.p2}:${gu.p1.join("")}:${gu.p2.join("")}`, game: g, res: a < b ? "win" : a > b ? "loss" : "draw", score: `${a === 99 ? "–" : a}:${b === 99 ? "–" : b} Versuche`, with: [], vs: [nm(c[o])] });
+    } else if (g === "dots" || g === "rev") {
+      const d = room[g] || {}, s = d.a === me ? "a" : d.b === me ? "b" : null, G = DUELS[g]; if (!s || !d.st) return;
+      const r = G.result(d.st); if (!r) return; const sc = G.score(d.st), o = s === "a" ? "b" : "a";
+      stAdd({ id: `${base}:${d.st.id}`, game: g, res: r === "d" ? "draw" : r === s ? "win" : "loss", score: `${sc[s]}:${sc[o]}`, with: [], vs: [nm(d[o])] });
     } else if (g === "tictactoe") {
       const t = room.ttt || {}, s = t.x === me ? "X" : t.o === me ? "O" : null; if (!s || !t.over) return;
       const b = String(t.b).split(""), w = LINES.find(l => b[l[0]] !== "." && l.every(i => b[i] === b[l[0]]));
@@ -45,7 +49,7 @@ function statistik(){
   const resTxt = { win: ["Sieg", "var(--mint)"], loss: ["Niederlage", "var(--coral)"], draw: ["Unentschieden", "var(--muted)"] };
   app.innerHTML = `<div class="bar"><a href="#" class="back" style="color:inherit;text-decoration:none">← Start</a><h3>Statistik</h3></div>
   <div class="chips"><button class="chip" data-g="" aria-pressed="${!stFilter.game}">Alle Spiele</button>${Object.entries(ST_GAMES).map(([k, v]) => `<button class="chip" data-g="${k}" aria-pressed="${stFilter.game === k}">${v}</button>`).join("")}</div>
-  ${!list.length ? `<div class="note" style="text-align:center">Noch keine Ergebnisse. Sobald du online im Raum Tauschduell, Gleitstein, Codeknacker oder Tic-Tac-Toe zu Ende spielst, landet das Ergebnis hier.</div>` : `
+  ${!list.length ? `<div class="note" style="text-align:center">Noch keine Ergebnisse. Sobald du online im Raum ein Duell zu Ende spielst, landet das Ergebnis hier.</div>` : `
   <div class="score"><div><span class="label">Siege</span><b style="color:var(--mint)">${tot.win}</b></div><div><span class="label">Quote</span><b>${quote} %</b></div><div><span class="label">Niederlagen</span><b style="color:var(--coral)">${tot.loss}</b></div></div>
   <p class="muted" style="text-align:center">${list.length} ${list.length === 1 ? "Spiel" : "Spiele"}${tot.draw ? `, davon ${tot.draw} unentschieden` : ""}</p>
   ${opps.length ? `<div class="field"><span class="label">Gegen wen</span><div class="hist">${opps.map(o => `<div><span>${esc(o.n)}</span><span><b style="color:var(--mint)">${o.win}</b> : <b style="color:var(--coral)">${o.loss}</b>${o.draw ? ` <span class="muted">(${o.draw} unent.)</span>` : ""}</span></div>`).join("")}</div></div>` : ""}
