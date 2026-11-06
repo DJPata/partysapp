@@ -73,6 +73,28 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .tile.wide{grid-column:1/-1;min-height:0}
 .t-imp .glyph{color:var(--coral)} .t-dice .glyph{color:var(--marigold)} .t-ttt .glyph{color:var(--sky)} .t-nie .glyph{color:var(--mint)} .t-slide .glyph{color:#9ad9f5}
 .iceslot{display:flex;justify-content:center}
+.t-m3 .glyph{color:#b07cff} .t-code .glyph{color:#3ddc84}
+.m3board{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:4px;background:var(--panel);padding:8px;border-radius:var(--r);touch-action:none;user-select:none;-webkit-user-select:none}
+.gem{aspect-ratio:1;border-radius:12px;background:var(--g);color:rgba(20,10,30,.55);font-size:clamp(.9rem,4.6vw,1.4rem);font-weight:800;display:grid;place-items:center;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);transition:transform .15s,opacity .2s}
+.gem.sel{outline:3px solid #fff;outline-offset:1px;transform:scale(.9)}
+.gem.pop{animation:pop .36s forwards}
+@keyframes pop{50%{transform:scale(1.18);filter:brightness(1.6)}to{transform:scale(.2);opacity:0}}
+.m3board.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.peg{display:inline-block;width:28px;height:28px;border-radius:50%;background:var(--g);box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
+.peg[data-empty]{background:none;box-shadow:inset 0 0 0 2px var(--line)}
+.pegs{display:flex;gap:8px;align-items:center}
+.pegs.big .peg{width:46px;height:46px}
+.pegs.big{justify-content:center;gap:12px}
+.palette{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;justify-items:center}
+.palette .peg{width:40px;height:40px}
+.ckrows{display:flex;flex-direction:column;gap:8px}
+.ckrow{display:flex;align-items:center;gap:12px}
+.ckrow .n{width:1.4em;text-align:right;font-size:.85rem}
+.pins{display:grid;grid-template-columns:repeat(2,10px);gap:4px;margin-left:auto}
+.pins i{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line)}
+.pins i.ex{background:#fff;box-shadow:none}
+.pins i.nr{box-shadow:inset 0 0 0 2px #fff}
 canvas.ice{border-radius:14px;touch-action:none;box-shadow:0 0 0 3px var(--panel-2);display:block}
 .pill{align-self:flex-start;margin-top:auto;display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--panel-2);color:var(--muted)}
 
@@ -196,6 +218,8 @@ function home(){
     <a href="#tictactoe" class="tile t-ttt" style="color:inherit;text-decoration:none"><span class="glyph">✕○</span><h3>Tic-Tac-Toe</h3><p>Zu zweit, mit Punktestand.</p><span class="pill">2 Spieler</span></a>
     <a href="#nie" class="tile t-nie" style="color:inherit;text-decoration:none"><span class="glyph">!</span><h3>Ich hab noch nie</h3><p>Party, Ü18 oder Casual. Plus Wahrheit oder Pflicht.</p><span class="pill">${NEVER.length+TRUTH.length+DARE.length} Karten</span></a>
     <a href="#gleiter" class="tile t-slide wide" style="color:inherit;text-decoration:none"><span class="glyph">◉</span><h3>Gleitstein</h3><p>Steine übers Eis schnippen, gegnerische wegschießen. Team Rot gegen Team Gelb.</p><span class="pill">2 Teams</span></a>
+    <a href="#tauschduell" class="tile t-m3" style="color:inherit;text-decoration:none"><span class="glyph">◆★●</span><h3>Tauschduell</h3><p>Steine tauschen, Reihen abräumen, mehr Punkte als das andere Team.</p><span class="pill">2 Teams</span></a>
+    <a href="#codeknacker" class="tile t-code" style="color:inherit;text-decoration:none"><span class="glyph">●●○</span><h3>Codeknacker</h3><p>Knackt den geheimen Farbcode in höchstens 10 Versuchen.</p><span class="pill">1–2 Spieler</span></a>
   </nav>`;
 }
 
@@ -428,6 +452,8 @@ function nie(){
 <script src="config.js"></script>
 <script src="net.js"></script>
 <script src="slide.js"></script>
+<script src="m3.js"></script>
+<script src="code.js"></script>
 <script src="online.js"></script>
 <script>
 if("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
