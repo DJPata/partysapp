@@ -94,7 +94,7 @@ function oLobby(){
   const room = on.room, ps = playersOf(room), host = isHost();
   const games = [
     ["imposter", "?!", "Imposter", "Jeder sieht seine Karte auf dem eigenen Handy.", "t-imp", 3],
-    ["wuerfel", "⚂⚄⚅", "Drei Würfel", "Jeder würfelt selbst, alle sehen live mit.", "t-dice", 2],
+    ["wuerfel", "⚂⚄⚅", "Chicago", "Jeder würfelt selbst, alle sehen live mit.", "t-dice", 2],
     ["tictactoe", "✕○", "Tic-Tac-Toe", "Zwei spielen, alle schauen zu.", "t-ttt", 2],
     ["nie", "!", "Ich hab noch nie", "Gemeinsame Karte für alle.", "t-nie", 1]
   ];
@@ -126,7 +126,7 @@ function startGame(g){
   }
   if (g === "wuerfel") return up({ game: g, dice: newDiceRound(ps.map(p => p.id), 1) });
   if (g === "tictactoe") return up({ game: g, ttt: room.ttt || { b: ".........", turn: "X", start: "X", score: { X: 0, O: 0, D: 0 }, over: false } });
-  if (g === "nie") return up({ game: g, nie: room.nie || { kind: "never", text: pick(NEVER), n: 1 } });
+  if (g === "nie") return up({ game: g, nie: room.nie || { kind: "party", text: pick(NEVER_CATS.party), n: 1 } });
 }
 
 /* --- Imposter online --- */
@@ -194,14 +194,14 @@ function newImpRound(){
   up({ "imp/round": { n: (room.imp.round?.n || room.imp.lastN || 0) + 1, cat, word, imps, who, starter: pick(ps).id, endsAt: 0, solved: false }, "imp/lastN": (room.imp.round?.n || room.imp.lastN || 0) + 1 });
 }
 
-/* --- Drei Würfel online --- */
+/* --- Chicago online --- */
 function newDiceRound(order, round){ return { round, order, cur: 0, max: 3, rolls: 0, v: [1, 1, 1], held: [false, false, false], flip: false, glass: true, results: [], phase: "play" }; }
 function oDice(){
   const room = on.room, d = room.dice, order = arr(d.order), held = arr(d.held), v = arr(d.v), results = arr(d.results);
   if (d.phase === "end") return oDiceEnd();
   const curId = order[d.cur], mine = curId === me, first = d.cur === 0, s = diceScore(v), left = d.max - d.rolls;
   const sig = `${d.round}-${d.cur}-${d.rolls}`; const anim = on.lastDice && on.lastDice !== sig && d.rolls > 0 && !on.rolling; on.lastDice = sig;
-  app.innerHTML = roomBar(`Drei Würfel · Runde ${d.round}`) + `
+  app.innerHTML = roomBar(`Chicago · Runde ${d.round}`) + `
   ${d.glass ? `<div class="glass"><b>Runde ${d.round}:</b> ${d.round === 1 ? "Glas halb voll mit Bier füllen." : "Glas wieder halb voll füllen."}${isHost() || mine ? `<button class="btn ghost" id="gl">Erledigt</button>` : ""}</div>` : ""}
   <div class="turn"><span class="label">${first ? "Fängt an und legt die Würfe fest" : `Höchstens ${d.max} ${d.max === 1 ? "Wurf" : "Würfe"}`}</span>
     <h2>${mine ? "Du bist dran" : `${esc(pname(room, curId))} ist dran`}</h2>
@@ -248,10 +248,10 @@ function diceNext(record){
 }
 function oDiceEnd(){
   const room = on.room, d = room.dice, results = arr(d.results);
-  if (!results.length) { app.innerHTML = roomBar("Drei Würfel") + `<p class="muted">Niemand hat gewürfelt.</p>${isHost() ? `<button class="btn block" id="next">Nächste Runde</button>` : ""}`; $("#next") && ($("#next").onclick = () => diceNewRoundOnline(null)); return; }
+  if (!results.length) { app.innerHTML = roomBar("Chicago") + `<p class="muted">Niemand hat gewürfelt.</p>${isHost() ? `<button class="btn block" id="next">Nächste Runde</button>` : ""}`; $("#next") && ($("#next").onclick = () => diceNewRoundOnline(null)); return; }
   const ranked = [...results].sort((a, b) => b.pts - a.pts);
   const min = ranked[ranked.length - 1].pts, losers = results.filter(r => r.pts === min);
-  app.innerHTML = roomBar(`Drei Würfel · Runde ${d.round}`) + `
+  app.innerHTML = roomBar(`Chicago · Runde ${d.round}`) + `
   <div class="turn"><span class="label">Runde ${d.round} ausgewertet</span><h2>${esc(pname(room, ranked[0].who))} hat den höchsten Wurf</h2></div>
   <div class="hist ranking">${ranked.map((r, i) => `<div><span>${i + 1}. ${esc(pname(room, r.who))}${r.cls ? ` <b class="c-${r.cls}">${r.name}</b>` : ""}</span><span>${arr(r.v).join(" · ")} = <b>${r.pts}</b></span></div>`).join("")}</div>
   <div class="special drink"><span class="label">Niedrigster Wurf · ${min} Punkte</span><b>${losers.map(r => esc(pname(room, r.who))).join(" & ")}</b><span>${losers.length > 1 ? "trinken das Glas" : "trinkt das Glas"}. Danach wird aufgefüllt und ${esc(pname(room, losers[0].who))} beginnt die nächste Runde.</span></div>
@@ -292,13 +292,12 @@ function oTtt(){
 
 /* --- Ich hab noch nie online --- */
 function oNie(){
-  const n = on.room.nie, L = { never: "Ich hab noch nie", truth: "Wahrheit", dare: "Pflicht" };
+  const n = on.room.nie;
   app.innerHTML = roomBar("Ich hab noch nie") + `
-  <div class="prompt ${n.kind}"><span class="label">${L[n.kind]} · Karte ${n.n}</span><p class="q">${esc(n.text)}</p></div>
-  <button class="btn block" data-k="never">Ich hab noch nie …</button>
-  <div class="row"><button class="btn ghost" data-k="truth">Wahrheit</button><button class="btn coral" data-k="dare">Pflicht</button></div>
+  <div class="prompt ${nieCls(n.kind)}"><span class="label">${NIE_LABEL[n.kind] || ""} · Karte ${n.n}</span><p class="q">${esc(n.text)}</p></div>
+  ${NIE_BUTTONS}
   <p class="muted" style="font-size:.9rem">Alle sehen dieselbe Karte. Jeder kann die nächste ziehen.</p>`;
-  app.querySelectorAll("[data-k]").forEach(el => el.onclick = () => { const k = el.dataset.k, bank = { never: NEVER, truth: TRUTH, dare: DARE }[k]; let t; do { t = pick(bank); } while (t === n.text && bank.length > 1); up({ nie: { kind: k, text: t, n: n.n + 1 } }); });
+  app.querySelectorAll("[data-k]").forEach(el => el.onclick = () => { const k = el.dataset.k, bank = NIE_BANK(k); let t; do { t = pick(bank); } while (t === n.text && bank.length > 1); up({ nie: { kind: k, text: t, n: n.n + 1 } }); });
 }
 
 /* ---------- Start & Routing ---------- */

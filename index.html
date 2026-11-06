@@ -134,6 +134,7 @@ input[type=text]{background:var(--panel-2);border:1px solid var(--line);color:va
 /* never */
 .prompt{min-height:260px;border-radius:24px;padding:24px;background:var(--panel);display:flex;flex-direction:column;justify-content:center;gap:12px}
 .prompt .q{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,6vw,2rem);line-height:1.15}
+.nie3>.btn{flex:1 1 80px}
 .prompt.truth .label{color:var(--sky)} .prompt.dare .label{color:var(--coral)} .prompt.never .label{color:var(--mint)}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -154,7 +155,12 @@ const WORDS = {
   "Freizeit & Sport":["Fußball","Tennis","Schwimmen","Skifahren","Bowling","Minigolf","Karaoke","Yoga","Klettern","Surfen","Angeln","Schach","Joggen","Tanzen","Reiten","Boxen","Volleyball","Basketball","Darts","Billard","Grillen","Wandern","Zelten","Puzzeln","Stricken","Gaming","Kochen","Malen","Fotografieren","Schlittschuhlaufen"],
   "Filme & Figuren":["Superheld","Vampir","Zombie","Pirat","Ritter","Prinzessin","Drache","Hexe","Roboter","Alien","Geist","Zwerg","Riese","Meerjungfrau","Cowboy","Ninja","Weihnachtsmann","Osterhase","Zahnfee","Einhorn","Werwolf","Mumie","Kobold","Detektiv","Geheimagent","Zauberer","Clown","Engel","Teufel","Yeti"]
 };
-const NEVER = ["Ich hab noch nie einen Flug verpasst.","Ich hab noch nie bei einer Prüfung geschummelt.","Ich hab noch nie einen ganzen Tag im Schlafanzug verbracht.","Ich hab noch nie jemandem eine falsche Nummer gegeben.","Ich hab noch nie in der Öffentlichkeit gesungen.","Ich hab noch nie etwas vom Boden gegessen.","Ich hab noch nie einen Film im Kino verschlafen.","Ich hab noch nie eine Nachricht an die falsche Person geschickt.","Ich hab noch nie so getan, als wäre ich krank, um zu Hause zu bleiben.","Ich hab noch nie ein Geschenk weiterverschenkt.","Ich hab noch nie meinen eigenen Geburtstag vergessen.","Ich hab noch nie einen Knochen gebrochen.","Ich hab noch nie eine Nacht durchgemacht.","Ich hab noch nie auf einem Tisch getanzt.","Ich hab noch nie heimlich die Pommes von jemand anderem gegessen.","Ich hab noch nie ein Tattoo bereut.","Ich hab noch nie jemanden auf Social Media gestalkt.","Ich hab noch nie meine Hausaufgaben abgeschrieben.","Ich hab noch nie im Auto übernachtet.","Ich hab noch nie an einem Ort geschlafen, an dem ich nicht sein durfte.","Ich hab noch nie ein Date vergessen.","Ich hab noch nie Rotz und Wasser bei einem Film geheult.","Ich hab noch nie meine Eltern angelogen, wo ich bin.","Ich hab noch nie meinen Schlüssel im Schloss stecken lassen.","Ich hab noch nie in einem fremden Land die Polizei gerufen.","Ich hab noch nie etwas Teures kaputt gemacht.","Ich hab noch nie aus Versehen jemanden mit „Mama“ angesprochen, der nicht meine Mama war.","Ich hab noch nie eine Sprachnachricht gelöscht, bevor sie ankam.","Ich hab noch nie einen Kater für eine Erkältung ausgegeben.","Ich hab noch nie ein Haustier nach einem Essen benannt.","Ich hab noch nie eine Serie an einem Tag durchgeschaut.","Ich bin noch nie gegen eine Glastür gelaufen.","Ich hab noch nie meinen Namen gegoogelt.","Ich hab noch nie im Unterricht oder im Meeting geschlafen.","Ich hab noch nie einen Strafzettel bekommen.","Ich hab noch nie heimlich Essen aus dem Kühlschrank von Mitbewohnern genommen.","Ich hab noch nie einen Lachanfall zum falschen Zeitpunkt gehabt.","Ich hab noch nie den Nachnamen meines Schwarms mit meinem Vornamen ausprobiert.","Ich hab noch nie einen Brief mit der Hand geschrieben.","Ich hab noch nie Karaoke gesungen."];
+const NEVER_CATS = {"party": ["Ich hab noch nie eine Nacht durchgemacht.", "Ich hab noch nie auf einem Tisch getanzt.", "Ich hab noch nie einen Filmriss gehabt.", "Ich hab noch nie auf einer Party eingeschlafen.", "Ich hab noch nie einen Kater für eine Erkältung ausgegeben.", "Ich hab noch nie Karaoke gesungen.", "Ich hab noch nie auf einer Party gekotzt.", "Ich hab noch nie meinen Schuh oder meine Jacke auf einer Party verloren.", "Ich hab noch nie betrunken jemanden angerufen und es am nächsten Tag bereut.", "Ich hab noch nie den Heimweg zu Fuß gemacht, weil kein Geld mehr da war.", "Ich hab noch nie in einer Bar auf dem Klo eingeschlafen.", "Ich hab noch nie den DJ nach einem peinlichen Lied gefragt.", "Ich hab noch nie meine Eltern angelogen, wo ich feiern war.", "Ich hab noch nie eine Party gecrasht, zu der ich nicht eingeladen war.", "Ich hab noch nie Bierpong gewonnen.", "Ich hab noch nie betrunken Essen um 4 Uhr morgens bestellt.", "Ich hab noch nie auf einem Festival gezeltet.", "Ich hab noch nie den letzten Zug oder Bus nach einer Party verpasst.", "Ich hab noch nie am Morgen danach Fotos gefunden, an die ich mich nicht erinnere.", "Ich hab noch nie einen Shot wieder ausgespuckt.", "Ich hab noch nie auf einer Party geweint.", "Ich hab noch nie mit jemand Fremdem die ganze Nacht durchgequatscht.", "Ich hab noch nie einen Türsteher angelogen.", "Ich bin noch nie in den Klamotten von gestern zur Arbeit oder Schule gegangen.", "Ich hab noch nie eine Hausparty geschmissen, die aus dem Ruder lief.", "Ich hab noch nie betrunken eine Sprachnachricht geschickt.", "Ich hab noch nie einen Drink über jemanden geschüttet.", "Ich hab noch nie meine Ex auf einer Party getroffen.", "Ich hab noch nie bis zum Sonnenaufgang gefeiert.", "Ich hab noch nie auf der Straße getanzt."], "ue18": ["Ich hab noch nie jemanden am ersten Abend geküsst.", "Ich hab noch nie einen One-Night-Stand gehabt.", "Ich hab noch nie Nacktbilder verschickt.", "Ich hab noch nie im Freien rumgemacht.", "Ich hab noch nie mit jemandem aus diesem Raum geknutscht.", "Ich hab noch nie Tinder oder eine andere Dating-App benutzt.", "Ich hab noch nie ein Date geghostet.", "Ich hab noch nie Sex im Auto gehabt.", "Ich hab noch nie bei jemandem übernachtet, dessen Namen ich nicht wusste.", "Ich hab noch nie meinen Ex zurückgeschrieben, obwohl ich es nicht wollte.", "Ich hab noch nie Fremdgehen in Betracht gezogen.", "Ich hab noch nie jemanden geküsst, der vergeben war.", "Ich hab noch nie Handschellen benutzt.", "Ich hab noch nie Strip-Poker gespielt.", "Ich hab noch nie nackt gebadet.", "Ich hab noch nie eine Affäre gehabt.", "Ich hab noch nie mit zwei Leuten an einem Abend geknutscht.", "Ich hab noch nie ein Sexspielzeug gekauft.", "Ich hab noch nie beim Sex gelacht.", "Ich hab noch nie eine Freundschaft Plus gehabt.", "Ich hab noch nie mit dem Ex eines Freundes oder einer Freundin rumgemacht.", "Ich hab noch nie heimlich den Partner von jemand anderem attraktiv gefunden.", "Ich bin noch nie beim Rumknutschen erwischt worden.", "Ich hab noch nie ein Date nur wegen des Essens angenommen.", "Ich hab noch nie jemanden in diesem Raum heimlich süß gefunden.", "Ich hab noch nie Sex an einem öffentlichen Ort gehabt.", "Ich hab noch nie den Walk of Shame gemacht.", "Ich hab noch nie einen Knutschfleck verstecken müssen.", "Ich hab noch nie unter der Dusche rumgemacht.", "Ich hab noch nie einen Flirt nur für Freigetränke gestartet."], "casual": ["Ich hab noch nie einen Flug verpasst.", "Ich hab noch nie bei einer Prüfung geschummelt.", "Ich hab noch nie einen ganzen Tag im Schlafanzug verbracht.", "Ich hab noch nie in der Öffentlichkeit gesungen.", "Ich hab noch nie etwas vom Boden gegessen.", "Ich hab noch nie einen Film im Kino verschlafen.", "Ich hab noch nie eine Nachricht an die falsche Person geschickt.", "Ich hab noch nie so getan, als wäre ich krank, um zu Hause zu bleiben.", "Ich hab noch nie ein Geschenk weiterverschenkt.", "Ich hab noch nie einen Knochen gebrochen.", "Ich hab noch nie heimlich die Pommes von jemand anderem gegessen.", "Ich hab noch nie jemanden auf Social Media gestalkt.", "Ich hab noch nie meine Hausaufgaben abgeschrieben.", "Ich hab noch nie im Auto übernachtet.", "Ich hab noch nie bei einem Film geweint.", "Ich hab noch nie meinen Schlüssel im Schloss stecken lassen.", "Ich hab noch nie etwas Teures kaputt gemacht.", "Ich hab noch nie jemanden aus Versehen mit „Mama“ angesprochen.", "Ich hab noch nie ein Haustier nach einem Essen benannt.", "Ich hab noch nie eine Serie an einem Tag durchgeschaut.", "Ich bin noch nie gegen eine Glastür gelaufen.", "Ich hab noch nie meinen Namen gegoogelt.", "Ich hab noch nie im Unterricht oder im Meeting geschlafen.", "Ich hab noch nie einen Strafzettel bekommen.", "Ich hab noch nie einen Lachanfall zum falschen Zeitpunkt gehabt.", "Ich hab noch nie einen Brief mit der Hand geschrieben.", "Ich hab noch nie meine Brille gesucht, während ich sie aufhatte.", "Ich hab noch nie ein Instrument gespielt.", "Ich hab noch nie einen Promi getroffen.", "Ich hab noch nie in einem anderen Land gelebt.", "Ich hab noch nie ein Paket für den Nachbarn angenommen und vergessen.", "Ich hab noch nie ein Rezept komplett vermasselt."]};
+const NEVER = Object.values(NEVER_CATS).flat();
+const NIE_LABEL = {party:"Ich hab noch nie · Party",ue18:"Ich hab noch nie · Ü18",casual:"Ich hab noch nie · Casual",never:"Ich hab noch nie",truth:"Wahrheit",dare:"Pflicht"};
+const NIE_BANK = k => NEVER_CATS[k] || {truth:TRUTH,dare:DARE}[k] || NEVER;
+const nieCls = k => NEVER_CATS[k] ? "never" : k;
+const NIE_BUTTONS = `<span class="label">Ich hab noch nie …</span><div class="row nie3"><button class="btn" data-k="party">Party</button><button class="btn coral" data-k="ue18">Ü18</button><button class="btn ghost" data-k="casual">Casual</button></div><div class="row"><button class="btn ghost" data-k="truth">Wahrheit</button><button class="btn ghost" data-k="dare">Pflicht</button></div>`;
 const TRUTH = ["Was war dein peinlichster Moment in der Schule?","Wen in diesem Raum würdest du auf eine einsame Insel mitnehmen?","Was ist die größte Lüge, die du je erzählt hast?","Welche App öffnest du am häufigsten?","Was war dein schlimmstes Date?","Welches Lied hörst du heimlich gerne?","Was ist deine seltsamste Angewohnheit?","Wofür hast du zuletzt viel zu viel Geld ausgegeben?","Was ist dein größter Fehlkauf?","Welchen Promi findest du heimlich toll?","Was würdest du tun, wenn du einen Tag unsichtbar wärst?","Was ist das Kindischste, das du immer noch machst?","Wann hast du zuletzt geweint und warum?","Welche Nachricht in deinem Handy darf niemand sehen?","Was war dein erster Eindruck von der Person links neben dir?"];
 const DARE = ["Sprich die nächsten zwei Runden nur in Reimen.","Mach 10 Kniebeugen.","Imitiere eine Person im Raum, bis jemand errät, wer es ist.","Sing den Refrain deines Lieblingslieds.","Lass die Gruppe dein letztes Foto in der Galerie sehen.","Tanze 30 Sekunden ohne Musik.","Erzähl einen Witz. Wenn keiner lacht, noch einen.","Sprich bis zu deiner nächsten Runde mit Akzent.","Mach dein bestes Tiergeräusch, die anderen raten.","Schick einem zufälligen Kontakt ein Herz-Emoji.","Halte 20 Sekunden lang den Augenkontakt mit der Person rechts von dir.","Lass dir von der Gruppe eine neue Frisur machen.","Sag zu jeder Person im Raum ein Kompliment.","Mach ein Selfie mit der dümmsten Grimasse.","Iss einen Löffel von etwas, das die Gruppe aussucht."];
 
@@ -184,9 +190,9 @@ function home(){
   <span class="label">Auf einem Handy</span>
   <nav class="tiles">
     <a href="#imposter" class="tile t-imp" style="color:inherit;text-decoration:none"><span class="glyph">?!</span><h3>Imposter</h3><p>Alle kennen das Wort, außer einer.</p><span class="pill">3–12 Spieler</span></a>
-    <a href="#wuerfel" class="tile t-dice" style="color:inherit;text-decoration:none"><span class="glyph">⚂⚄⚅</span><h3>Drei Würfel</h3><p>1 zählt 100, 6 zählt 60. Wer 113 hat, trinkt.</p><span class="pill">2–12 Spieler</span></a>
+    <a href="#wuerfel" class="tile t-dice" style="color:inherit;text-decoration:none"><span class="glyph">⚂⚄⚅</span><h3>Chicago</h3><p>1 zählt 100, 6 zählt 60. Wer 113 hat, trinkt.</p><span class="pill">2–12 Spieler</span></a>
     <a href="#tictactoe" class="tile t-ttt" style="color:inherit;text-decoration:none"><span class="glyph">✕○</span><h3>Tic-Tac-Toe</h3><p>Zu zweit, mit Punktestand.</p><span class="pill">2 Spieler</span></a>
-    <a href="#nie" class="tile t-nie" style="color:inherit;text-decoration:none"><span class="glyph">!</span><h3>Ich hab noch nie</h3><p>Plus Wahrheit oder Pflicht.</p><span class="pill">${NEVER.length+TRUTH.length+DARE.length} Karten</span></a>
+    <a href="#nie" class="tile t-nie" style="color:inherit;text-decoration:none"><span class="glyph">!</span><h3>Ich hab noch nie</h3><p>Party, Ü18 oder Casual. Plus Wahrheit oder Pflicht.</p><span class="pill">${NEVER.length+TRUTH.length+DARE.length} Karten</span></a>
   </nav>`;
 }
 
@@ -274,7 +280,7 @@ function impPlay(){
   $("#again").onclick=()=>{clearInterval(impTimer);impTimer=null;$("#go")||imposter();$("#go").click()};
 }
 
-/* ---------- Drei Würfel ---------- */
+/* ---------- Chicago (Würfelspiel) ---------- */
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const PTS={1:100,2:2,3:3,4:4,5:5,6:60};
 function diceScore(v){
@@ -296,7 +302,7 @@ function wuerfel(){
 }
 function diceSetup(){
   dcfg.names.length=dcfg.players;
-  app.innerHTML = bar("Drei Würfel") + `
+  app.innerHTML = bar("Chicago") + `
   <div class="card">
     <div class="field"><span class="label">Spieler</span>
       <div class="stepper"><button data-d="-1" aria-label="Weniger Spieler">−</button><output>${dcfg.players}</output><button data-d="1" aria-label="Mehr Spieler">+</button></div></div>
@@ -326,7 +332,7 @@ function diceNewRound(){
 }
 function diceTurn(){
   const name=dg.order[dg.cur], first=dg.cur===0, s=diceScore(dg.v), left=dg.max-dg.rolls;
-  app.innerHTML = bar("Drei Würfel") + `
+  app.innerHTML = bar("Chicago") + `
   ${dg.glass?`<div class="glass"><b>Runde ${dg.round}:</b> ${dg.round===1?"Glas halb voll mit Bier füllen.":"Glas wieder halb voll füllen."}<button class="btn ghost" id="gl">Erledigt</button></div>`:""}
   <div class="turn"><span class="label">${first?"Fängt an und legt die Würfe fest":`Höchstens ${dg.max} ${dg.max===1?"Wurf":"Würfe"}`}</span><h2>${esc(name)}</h2>
     <span class="muted">Wurf ${dg.rolls} von ${dg.max}${first&&dg.rolls?" (du kannst jederzeit aufhören)":""}</span></div>
@@ -369,7 +375,7 @@ function diceEndTurn(){
 function diceRoundEnd(){
   const ranked=[...dg.results].sort((a,b)=>b.pts-a.pts);
   const min=ranked[ranked.length-1].pts, losers=dg.results.filter(r=>r.pts===min);
-  app.innerHTML = bar("Drei Würfel") + `
+  app.innerHTML = bar("Chicago") + `
   <div class="turn"><span class="label">Runde ${dg.round} ausgewertet</span><h2>${esc(ranked[0].who)} hat den höchsten Wurf</h2></div>
   <div class="hist ranking">${ranked.map((r,i)=>`<div><span>${i+1}. ${esc(r.who)}${r.cls?` <b class="c-${r.cls}">${r.name}</b>`:""}</span><span>${r.v.join(" · ")} = <b>${r.pts}</b></span></div>`).join("")}</div>
   <div class="special drink"><span class="label">Niedrigster Wurf · ${min} Punkte</span><b>${losers.map(r=>esc(r.who)).join(" & ")}</b><span>${losers.length>1?"trinken das Glas":"trinkt das Glas"}. Danach wird aufgefüllt und ${esc(losers[0].who)} beginnt die nächste Runde.</span></div>
@@ -404,15 +410,13 @@ function tictactoe(){
 }
 
 /* ---------- Ich hab noch nie / Wahrheit oder Pflicht ---------- */
-const decks={never:shuffle(NEVER),truth:shuffle(TRUTH),dare:shuffle(DARE)};
-function draw(kind){ if(!decks[kind].length) decks[kind]=shuffle({never:NEVER,truth:TRUTH,dare:DARE}[kind]); return decks[kind].pop(); }
-let nieCard={kind:"never",text:draw("never")};
+const decks={};
+function draw(kind){ if(!decks[kind]?.length) decks[kind]=shuffle(NIE_BANK(kind)); return decks[kind].pop(); }
+let nieCard={kind:"party",text:draw("party")};
 function nie(){
-  const L={never:"Ich hab noch nie",truth:"Wahrheit",dare:"Pflicht"};
   app.innerHTML = bar("Ich hab noch nie") + `
-  <div class="prompt ${nieCard.kind}"><span class="label">${L[nieCard.kind]}</span><p class="q">${esc(nieCard.text)}</p></div>
-  <button class="btn block" data-k="never">Ich hab noch nie …</button>
-  <div class="row"><button class="btn ghost" data-k="truth">Wahrheit</button><button class="btn coral" data-k="dare">Pflicht</button></div>
+  <div class="prompt ${nieCls(nieCard.kind)}"><span class="label">${NIE_LABEL[nieCard.kind]}</span><p class="q">${esc(nieCard.text)}</p></div>
+  ${NIE_BUTTONS}
   <p class="muted" style="font-size:.9rem">Bei „Ich hab noch nie“ trinkt oder punktet jeder, der es schon mal gemacht hat.</p>`;
   app.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{nieCard={kind:b.dataset.k,text:draw(b.dataset.k)};nie()});
 }
