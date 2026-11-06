@@ -112,7 +112,9 @@ function oLobby(){
   </div>
   <div class="field"><span class="label">Dabei (${ps.length})</span>
     <div class="hist">${ps.map(p => `<div><span>${esc(p.name)}${p.id === me ? " (du)" : ""}</span><span>${p.id === room.host ? `<span class="pill">Spielleitung</span>` : host ? `<button class="pill" data-kick="${p.id}">Entfernen</button>` : ""}</span></div>`).join("")}</div></div>
-  ${host ? `<div class="field"><span class="label">Spiel auswählen</span><div class="tiles">${games.map(([id, gl, t, d, cls, min]) => `<button class="tile ${cls}" data-game="${id}" ${ps.length < min ? "disabled style=\"opacity:.5\"" : ""}><span class="glyph">${gl}</span><h3>${t}</h3><p>${ps.length < min ? `Ab ${min} Spielern` : d}</p></button>`).join("")}</div></div>`
+  ${host ? (() => { const DUEL = ["tictactoe", "code", "m3", "slide"], tile = ([id, gl, t, d, cls, min]) => `<button class="tile ${cls}" data-game="${id}" ${ps.length < min ? "disabled style=\"opacity:.5\"" : ""}><span class="glyph">${gl}</span><h3>${t}</h3><p>${ps.length < min ? `Ab ${min} Spielern` : d}</p></button>`;
+    return `<div class="field"><span class="label">Party</span><div class="tiles">${games.filter(g => !DUEL.includes(g[0])).map(tile).join("")}</div></div>
+    <div class="field"><span class="label">Duelle</span><div class="tiles">${games.filter(g => DUEL.includes(g[0])).map(tile).join("")}</div></div>`; })()
   : `<div class="note" style="text-align:center">${esc(pname(room, room.host))} wählt gleich ein Spiel aus.</div>`}`;
   $("#share").onclick = async () => {
     const url = shareLink();
@@ -317,7 +319,7 @@ function raum(){
   if (q) history.replaceState(null, "", location.pathname + "#raum");
   raumStart(q ? q.toUpperCase() : "");
 }
-const routes = { "": home, imposter, wuerfel, tictactoe, nie, gleiter, tauschduell, codeknacker, statistik, raum };
+const routes = { "": home, imposter, wuerfel, tictactoe, nie, duelle, gleiter, tauschduell, codeknacker, statistik, raum };
 function route(){
   clearInterval(impTimer); impTimer = null;
   const h = location.hash.slice(1);
