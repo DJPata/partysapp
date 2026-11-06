@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Partyabend</title>
+<meta name="theme-color" content="#1d1426">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Partyabend">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+*{-webkit-tap-highlight-color:transparent}
+/* Layout: one-column phone app, home grid of game tiles, each game a full view with a sticky back bar. Deliberately single dark "Partykeller" look. */
+:root{
+  color-scheme:dark;
+  --bg:#1d1426;          /* aubergine */
+  --panel:#2a1e36;
+  --panel-2:#372848;
+  --line:#4a3a5e;
+  --fg:#f6eefc;
+  --muted:#b9a8cc;
+  --marigold:#ffc247;
+  --coral:#ff6f61;
+  --sky:#6fd3ff;
+  --mint:#7cf0b4;
+  --display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:18px;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.app{max-width:560px;margin:0 auto;padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.05}
+h1{font-size:clamp(2.4rem,9vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.9rem;font-weight:800}
+h3{font-size:1.15rem;font-weight:500}
+p{margin:0}
+.muted{color:var(--muted)}
+.label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.btn{background:var(--marigold);color:#2a1a00;font-weight:700;border-radius:999px;padding:14px 22px;font-size:1.05rem;text-align:center;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--panel-2);color:var(--fg)}
+.btn.coral{background:var(--coral);color:#2b0703}
+.btn.block{width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>.btn{flex:1 1 140px}
+
+/* home */
+.hero{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+.hero h1 span{color:var(--marigold)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:var(--panel);border-radius:var(--r);padding:16px;text-align:left;display:flex;flex-direction:column;gap:10px;min-height:150px;position:relative;overflow:hidden;transition:transform .15s}
+.tile:active{transform:scale(.98)}
+.tile .glyph{font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:1}
+.tile p{font-size:.88rem;color:var(--muted)}
+.bar .pill{align-self:center;margin-top:0}
+.online{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:var(--r);background:var(--marigold);color:#2a1a00}
+.online .label{color:#5a3d00}
+.online p{color:#4a3300}
+.tile:disabled{cursor:default}
+.tile.wide{grid-column:1/-1;min-height:0}
+.t-imp .glyph{color:var(--coral)} .t-dice .glyph{color:var(--marigold)} .t-ttt .glyph{color:var(--sky)} .t-nie .glyph{color:var(--mint)}
+.pill{align-self:flex-start;margin-top:auto;display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--panel-2);color:var(--muted)}
+
+/* view chrome */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding-block:8px}
+.back{background:var(--panel);border-radius:999px;padding:8px 14px;font-weight:600}
+.card{background:var(--panel);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:44px;height:44px;border-radius:50%;background:var(--panel-2);font-size:1.4rem;font-weight:700}
+.stepper output{font-family:var(--display);font-size:1.8rem;font-weight:800;min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 12px;border-radius:999px;background:var(--panel-2);font-weight:600;font-size:.9rem;border:2px solid transparent}
+.chip[aria-pressed="true"]{border-color:var(--marigold);color:var(--marigold)}
+input[type=text]{background:var(--panel-2);border:1px solid var(--line);color:var(--fg);border-radius:12px;padding:10px 12px;font:inherit;width:100%}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.toggle{display:flex;align-items:center;gap:10px;font-weight:600}
+.toggle input{width:22px;height:22px;accent-color:var(--marigold)}
+
+/* imposter reveal */
+.reveal{min-height:320px;border-radius:24px;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;user-select:none}
+.reveal.cover{background:repeating-linear-gradient(135deg,var(--panel) 0 18px,var(--panel-2) 18px 36px)}
+.reveal .big{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,10vw,3.2rem);line-height:1;overflow-wrap:anywhere}
+.reveal.imp .big{color:var(--coral)}
+.reveal.word .big{color:var(--marigold)}
+.timer{font-family:var(--display);font-size:4rem;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
+
+/* dice */
+.dice{display:flex;justify-content:center;gap:14px;padding-block:18px}
+.die{width:min(26vw,110px);height:min(26vw,110px);box-sizing:border-box;background:#fff8ec;border-radius:20%;box-shadow:inset 0 -6px 0 #e3d3bd,0 8px 20px rgba(0,0,0,.35);display:block;padding:0;position:relative}
+.pips{position:absolute;inset:13%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
+.die i{display:block;width:min(5.5vw,22px);height:min(5.5vw,22px);place-self:center;border-radius:50%;background:#2a1e36;visibility:hidden}
+.die.held{box-shadow:inset 0 -6px 0 #e3d3bd,0 0 0 4px var(--marigold)}
+.die.roll{animation:roll .55s ease-out}
+@keyframes roll{0%{transform:rotate(0) translateY(0)}30%{transform:rotate(200deg) translateY(-24px)}100%{transform:rotate(360deg) translateY(0)}}
+.sum{text-align:center;display:flex;flex-direction:column;gap:2px}
+.sum b{font-family:var(--display);font-size:3rem;font-weight:800;color:var(--marigold);font-variant-numeric:tabular-nums}
+.hist{display:flex;flex-direction:column;gap:6px;font-variant-numeric:tabular-nums}
+.hist div{display:flex;justify-content:space-between;background:var(--panel-2);border-radius:10px;padding:8px 12px}
+.die:disabled{opacity:.55;cursor:default}
+.turn{text-align:center;display:flex;flex-direction:column;gap:4px}
+.glass{background:var(--panel);border:1.5px dashed var(--marigold);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.glass .btn{padding:8px 16px;font-size:.95rem}
+.special{border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:2px;text-align:center;background:var(--panel-2)}
+.special b{font-family:var(--display);font-size:2rem;font-weight:800;line-height:1}
+.special.top b,.c-top{color:var(--marigold)} .special.give b,.c-give{color:var(--sky)} .special.drink b,.c-drink{color:var(--coral)}
+.rules p{color:var(--muted);font-size:.95rem} .rules b{color:var(--fg)} .rules b.c-top{color:var(--marigold)} .rules b.c-give{color:var(--sky)} .rules b.c-drink{color:var(--coral)}
+.ranking div:first-child{box-shadow:inset 0 0 0 2px var(--marigold)}
+.note{border:1.5px dashed var(--line);border-radius:var(--r);padding:14px;color:var(--muted);font-size:.92rem}
+
+/* ttt */
+.score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:8px}
+.score b{font-family:var(--display);font-size:2.2rem;font-weight:800;display:block;font-variant-numeric:tabular-nums}
+.sx{color:var(--sky)} .so{color:var(--coral)}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;aspect-ratio:1;max-width:100%;width:100%}
+.cell{background:var(--panel);border-radius:16px;font-family:var(--display);font-weight:800;font-size:clamp(3rem,16vw,5rem);line-height:1}
+.cell.x{color:var(--sky)} .cell.o{color:var(--coral)}
+.cell.win{background:var(--panel-2);box-shadow:0 0 0 3px var(--marigold) inset}
+.status{text-align:center;font-weight:700;font-size:1.1rem;min-height:1.5em}
+
+/* never */
+.prompt{min-height:260px;border-radius:24px;padding:24px;background:var(--panel);display:flex;flex-direction:column;justify-content:center;gap:12px}
+.prompt .q{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,6vw,2rem);line-height:1.15}
+.prompt.truth .label{color:var(--sky)} .prompt.dare .label{color:var(--coral)} .prompt.never .label{color:var(--mint)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+/* ---------- Wort- und Fragen-Bank ---------- */
+const WORDS = {
+  "Essen & Trinken":["Pizza","Döner","Spaghetti","Sushi","Currywurst","Brezel","Pfannkuchen","Schnitzel","Kartoffelsalat","Erdbeere","Banane","Wassermelone","Popcorn","Schokolade","Gummibärchen","Kaffee","Apfelschorle","Bier","Sekt","Eiscreme","Burger","Lasagne","Raclette","Fondue","Croissant","Käsekuchen","Zwiebel","Knoblauch","Honig","Müsli"],
+  "Orte":["Strand","Flughafen","Krankenhaus","Schule","Kino","Supermarkt","Freibad","Zoo","Bahnhof","Kirche","Bibliothek","Fitnessstudio","Friseur","Zahnarzt","Bäckerei","Tankstelle","Campingplatz","Skigebiet","Disco","Museum","Gefängnis","Bauernhof","Raumstation","U-Boot","Hotel","Freizeitpark","Fußballstadion","Weihnachtsmarkt","Oktoberfest","Wüste"],
+  "Tiere":["Hund","Katze","Elefant","Giraffe","Pinguin","Hai","Delfin","Krokodil","Eichhörnchen","Igel","Kuh","Schwein","Pferd","Esel","Papagei","Eule","Fledermaus","Spinne","Biene","Schnecke","Löwe","Tiger","Zebra","Känguru","Koala","Faultier","Flamingo","Oktopus","Schildkröte","Waschbär"],
+  "Berufe":["Polizist","Feuerwehrmann","Lehrer","Arzt","Pilot","Koch","Bäcker","Friseur","Clown","Astronaut","Detektiv","Bauarbeiter","Gärtner","Postbote","Zahnarzt","Tierarzt","Kellner","DJ","Fotograf","Richter","Rettungsschwimmer","Busfahrer","Zauberer","Schornsteinfeger","Influencer","Bibliothekar","Programmierer","Hebamme","Imker","Förster"],
+  "Gegenstände":["Regenschirm","Zahnbürste","Kühlschrank","Fahrrad","Handy","Brille","Schlüssel","Kerze","Spiegel","Kopfkissen","Staubsauger","Gitarre","Luftballon","Rucksack","Sonnenbrille","Föhn","Wecker","Bügeleisen","Toaster","Fernbedienung","Kugelschreiber","Schere","Taschenlampe","Hängematte","Koffer","Würfel","Kompass","Teddybär","Mikrofon","Gießkanne"],
+  "Freizeit & Sport":["Fußball","Tennis","Schwimmen","Skifahren","Bowling","Minigolf","Karaoke","Yoga","Klettern","Surfen","Angeln","Schach","Joggen","Tanzen","Reiten","Boxen","Volleyball","Basketball","Darts","Billard","Grillen","Wandern","Zelten","Puzzeln","Stricken","Gaming","Kochen","Malen","Fotografieren","Schlittschuhlaufen"],
+  "Filme & Figuren":["Superheld","Vampir","Zombie","Pirat","Ritter","Prinzessin","Drache","Hexe","Roboter","Alien","Geist","Zwerg","Riese","Meerjungfrau","Cowboy","Ninja","Weihnachtsmann","Osterhase","Zahnfee","Einhorn","Werwolf","Mumie","Kobold","Detektiv","Geheimagent","Zauberer","Clown","Engel","Teufel","Yeti"]
+};
+const NEVER = ["Ich hab noch nie einen Flug verpasst.","Ich hab noch nie bei einer Prüfung geschummelt.","Ich hab noch nie einen ganzen Tag im Schlafanzug verbracht.","Ich hab noch nie jemandem eine falsche Nummer gegeben.","Ich hab noch nie in der Öffentlichkeit gesungen.","Ich hab noch nie etwas vom Boden gegessen.","Ich hab noch nie einen Film im Kino verschlafen.","Ich hab noch nie eine Nachricht an die falsche Person geschickt.","Ich hab noch nie so getan, als wäre ich krank, um zu Hause zu bleiben.","Ich hab noch nie ein Geschenk weiterverschenkt.","Ich hab noch nie meinen eigenen Geburtstag vergessen.","Ich hab noch nie einen Knochen gebrochen.","Ich hab noch nie eine Nacht durchgemacht.","Ich hab noch nie auf einem Tisch getanzt.","Ich hab noch nie heimlich die Pommes von jemand anderem gegessen.","Ich hab noch nie ein Tattoo bereut.","Ich hab noch nie jemanden auf Social Media gestalkt.","Ich hab noch nie meine Hausaufgaben abgeschrieben.","Ich hab noch nie im Auto übernachtet.","Ich hab noch nie an einem Ort geschlafen, an dem ich nicht sein durfte.","Ich hab noch nie ein Date vergessen.","Ich hab noch nie Rotz und Wasser bei einem Film geheult.","Ich hab noch nie meine Eltern angelogen, wo ich bin.","Ich hab noch nie meinen Schlüssel im Schloss stecken lassen.","Ich hab noch nie in einem fremden Land die Polizei gerufen.","Ich hab noch nie etwas Teures kaputt gemacht.","Ich hab noch nie aus Versehen jemanden mit „Mama“ angesprochen, der nicht meine Mama war.","Ich hab noch nie eine Sprachnachricht gelöscht, bevor sie ankam.","Ich hab noch nie einen Kater für eine Erkältung ausgegeben.","Ich hab noch nie ein Haustier nach einem Essen benannt.","Ich hab noch nie eine Serie an einem Tag durchgeschaut.","Ich bin noch nie gegen eine Glastür gelaufen.","Ich hab noch nie meinen Namen gegoogelt.","Ich hab noch nie im Unterricht oder im Meeting geschlafen.","Ich hab noch nie einen Strafzettel bekommen.","Ich hab noch nie heimlich Essen aus dem Kühlschrank von Mitbewohnern genommen.","Ich hab noch nie einen Lachanfall zum falschen Zeitpunkt gehabt.","Ich hab noch nie den Nachnamen meines Schwarms mit meinem Vornamen ausprobiert.","Ich hab noch nie einen Brief mit der Hand geschrieben.","Ich hab noch nie Karaoke gesungen."];
+const TRUTH = ["Was war dein peinlichster Moment in der Schule?","Wen in diesem Raum würdest du auf eine einsame Insel mitnehmen?","Was ist die größte Lüge, die du je erzählt hast?","Welche App öffnest du am häufigsten?","Was war dein schlimmstes Date?","Welches Lied hörst du heimlich gerne?","Was ist deine seltsamste Angewohnheit?","Wofür hast du zuletzt viel zu viel Geld ausgegeben?","Was ist dein größter Fehlkauf?","Welchen Promi findest du heimlich toll?","Was würdest du tun, wenn du einen Tag unsichtbar wärst?","Was ist das Kindischste, das du immer noch machst?","Wann hast du zuletzt geweint und warum?","Welche Nachricht in deinem Handy darf niemand sehen?","Was war dein erster Eindruck von der Person links neben dir?"];
+const DARE = ["Sprich die nächsten zwei Runden nur in Reimen.","Mach 10 Kniebeugen.","Imitiere eine Person im Raum, bis jemand errät, wer es ist.","Sing den Refrain deines Lieblingslieds.","Lass die Gruppe dein letztes Foto in der Galerie sehen.","Tanze 30 Sekunden ohne Musik.","Erzähl einen Witz. Wenn keiner lacht, noch einen.","Sprich bis zu deiner nächsten Runde mit Akzent.","Mach dein bestes Tiergeräusch, die anderen raten.","Schick einem zufälligen Kontakt ein Herz-Emoji.","Halte 20 Sekunden lang den Augenkontakt mit der Person rechts von dir.","Lass dir von der Gruppe eine neue Frisur machen.","Sag zu jeder Person im Raum ein Kompliment.","Mach ein Selfie mit der dümmsten Grimasse.","Iss einen Löffel von etwas, das die Gruppe aussucht."];
+
+/* ---------- Helfer ---------- */
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const rand = n => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+const pick = arr => arr[rand(arr.length)];
+const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = { get(k,d){try{return JSON.parse(localStorage.getItem("party:"+k))??d}catch{return d}}, set(k,v){try{localStorage.setItem("party:"+k,JSON.stringify(v))}catch{}} };
+const bar = t => `<div class="bar"><a href="#" class="back" style="color:inherit;text-decoration:none">← Spiele</a><h3>${t}</h3></div>`;
+
+/* ---------- Start ---------- */
+function home(){
+  app.innerHTML = `
+  <header class="hero">
+    <span class="label">Ein Handy, die ganze Runde</span>
+    <h1>Party<span>abend</span></h1>
+    <p class="muted">Spielt zusammen mit euren eigenen Handys oder gebt ein Handy reihum.</p>
+  </header>
+  <a href="#raum" class="online" style="text-decoration:none">
+    <span class="label">${store.get("room",null)?"Zurück in deinen Raum":"Jeder mit eigenem Handy"}</span>
+    <h2>${store.get("room",null)?"Raum "+esc(store.get("room","")):"Zusammen spielen"}</h2>
+    <p>${store.get("room",null)?"Tippen, um weiterzuspielen.":"Raum erstellen oder mit Code beitreten."}</p>
+  </a>
+  <span class="label">Auf einem Handy</span>
+  <nav class="tiles">
+    <a href="#imposter" class="tile t-imp" style="color:inherit;text-decoration:none"><span class="glyph">?!</span><h3>Imposter</h3><p>Alle kennen das Wort, außer einer.</p><span class="pill">3–12 Spieler</span></a>
+    <a href="#wuerfel" class="tile t-dice" style="color:inherit;text-decoration:none"><span class="glyph">⚂⚄⚅</span><h3>Drei Würfel</h3><p>1 zählt 100, 6 zählt 60. Wer 113 hat, trinkt.</p><span class="pill">2–12 Spieler</span></a>
+    <a href="#tictactoe" class="tile t-ttt" style="color:inherit;text-decoration:none"><span class="glyph">✕○</span><h3>Tic-Tac-Toe</h3><p>Zu zweit, mit Punktestand.</p><span class="pill">2 Spieler</span></a>
+    <a href="#nie" class="tile t-nie" style="color:inherit;text-decoration:none"><span class="glyph">!</span><h3>Ich hab noch nie</h3><p>Plus Wahrheit oder Pflicht.</p><span class="pill">${NEVER.length+TRUTH.length+DARE.length} Karten</span></a>
+  </nav>`;
+}
+
+/* ---------- Imposter ---------- */
+const imp = store.get("imp",{players:5,imposters:1,cats:Object.keys(WORDS),names:[],hint:true});
+let impRound = null;
+function imposter(){
+  imp.names.length = imp.players;
+  app.innerHTML = bar("Imposter") + `
+  <div class="card">
+    <div class="field"><span class="label">Spieler</span>
+      <div class="stepper"><button data-d="players" data-v="-1" aria-label="Weniger Spieler">−</button><output>${imp.players}</output><button data-d="players" data-v="1" aria-label="Mehr Spieler">+</button></div></div>
+    <div class="field"><span class="label">Imposter</span>
+      <div class="stepper"><button data-d="imposters" data-v="-1" aria-label="Weniger Imposter">−</button><output>${imp.imposters}</output><button data-d="imposters" data-v="1" aria-label="Mehr Imposter">+</button></div></div>
+    <div class="field"><span class="label">Namen (optional)</span>
+      <div class="names">${Array.from({length:imp.players},(_,i)=>`<input type="text" id="n${i}" data-i="${i}" placeholder="Spieler ${i+1}" value="${esc(imp.names[i]||"")}">`).join("")}</div></div>
+    <div class="field"><span class="label">Kategorien</span>
+      <div class="chips">${Object.keys(WORDS).map(c=>`<button class="chip" data-cat="${esc(c)}" aria-pressed="${imp.cats.includes(c)}">${esc(c)}</button>`).join("")}</div></div>
+    <label class="toggle"><input type="checkbox" id="hint" ${imp.hint?"checked":""}> Imposter sieht die Kategorie</label>
+  </div>
+  <button class="btn block" id="go">Runde starten</button>
+  <p class="muted" style="font-size:.9rem">${Object.values(WORDS).flat().length} Begriffe im Pool. Jeder Spieler deckt seine Karte nacheinander auf, merkt sie sich und gibt das Handy weiter.</p>`;
+  app.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.d; imp[k]+= +b.dataset.v;
+    imp.players=Math.min(12,Math.max(3,imp.players));
+    imp.imposters=Math.min(Math.max(1,imp.imposters),Math.max(1,Math.floor((imp.players-1)/2)));
+    store.set("imp",imp); imposter();
+  });
+  app.querySelectorAll("[data-i]").forEach(i=>i.oninput=()=>{imp.names[i.dataset.i]=i.value;store.set("imp",imp)});
+  app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{
+    const c=b.dataset.cat; imp.cats = imp.cats.includes(c)? imp.cats.filter(x=>x!==c) : [...imp.cats,c];
+    if(!imp.cats.length) imp.cats=[c];
+    b.setAttribute("aria-pressed",imp.cats.includes(c)); store.set("imp",imp);
+  });
+  $("#hint").onchange=e=>{imp.hint=e.target.checked;store.set("imp",imp)};
+  $("#go").onclick=()=>{
+    const cat=pick(imp.cats), word=pick(WORDS[cat]);
+    const names=Array.from({length:imp.players},(_,i)=>(imp.names[i]||"").trim()||`Spieler ${i+1}`);
+    const impIdx=new Set(shuffle([...names.keys()]).slice(0,imp.imposters));
+    impRound={cat,word,names,impIdx,i:0,shown:false};
+    impReveal();
+  };
+}
+function impReveal(){
+  const r=impRound;
+  if(r.i>=r.names.length) return impPlay();
+  const name=r.names[r.i], isImp=r.impIdx.has(r.i);
+  app.innerHTML = bar("Imposter") + `
+  <p class="label" style="text-align:center">Karte ${r.i+1} von ${r.names.length}</p>
+  ${r.shown ? `
+    <div class="reveal ${isImp?"imp":"word"}">
+      <span class="label">${esc(name)}, dein Begriff</span>
+      <span class="big">${isImp?"Du bist der Imposter":esc(r.word)}</span>
+      ${isImp && imp.hint ? `<span class="muted">Kategorie: ${esc(r.cat)}</span>`:""}
+      ${!isImp ? `<span class="muted">${esc(r.cat)}</span>`:""}
+    </div>
+    <button class="btn block" id="next">Verdecken und weitergeben</button>`
+  : `
+    <button class="reveal cover" id="show">
+      <span class="label">Handy an</span>
+      <span class="big">${esc(name)}</span>
+      <span class="muted">Tippen zum Aufdecken. Niemand sonst schaut hin.</span>
+    </button>`}`;
+  if(r.shown) $("#next").onclick=()=>{r.shown=false;r.i++;impReveal()};
+  else $("#show").onclick=()=>{r.shown=true;impReveal()};
+}
+let impTimer=null;
+function impPlay(){
+  const r=impRound; clearInterval(impTimer);
+  const starter=pick(r.names); let left=180;
+  app.innerHTML = bar("Imposter") + `
+  <div class="card" style="text-align:center">
+    <span class="label">Alle haben ihre Karte gesehen</span>
+    <h2>${esc(starter)} fängt an</h2>
+    <p class="muted">Reihum sagt jeder ein Wort zum Begriff. Danach wird abgestimmt, wer der Imposter ist.</p>
+  </div>
+  <div class="timer" id="t">3:00</div>
+  <div class="row"><button class="btn ghost" id="ts">Timer starten</button><button class="btn coral" id="sol">Auflösen</button></div>
+  <div id="res"></div>
+  <button class="btn ghost block" id="again">Neue Runde, gleiche Spieler</button>`;
+  const fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+  $("#ts").onclick=e=>{ if(impTimer){clearInterval(impTimer);impTimer=null;e.target.textContent="Weiter";return;}
+    e.target.textContent="Pause"; impTimer=setInterval(()=>{left=Math.max(0,left-1);$("#t").textContent=fmt(left);if(!left){clearInterval(impTimer);impTimer=null;navigator.vibrate?.(400);}},1000); };
+  $("#sol").onclick=()=>{ $("#res").innerHTML=`<div class="reveal imp" style="min-height:0"><span class="label">Imposter</span><span class="big" style="font-size:2rem">${[...r.impIdx].map(i=>esc(r.names[i])).join(", ")}</span><span class="muted">Das Wort war <b style="color:var(--marigold)">${esc(r.word)}</b> (${esc(r.cat)})</span></div>`; };
+  $("#again").onclick=()=>{clearInterval(impTimer);impTimer=null;$("#go")||imposter();$("#go").click()};
+}
+
+/* ---------- Drei Würfel ---------- */
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const PTS={1:100,2:2,3:3,4:4,5:5,6:60};
+function diceScore(v){
+  const k=[...v].sort().join("");
+  if(k==="111") return {pts:300,name:"111",action:"Höchster Wurf! Das Glas wird komplett aufgefüllt.",cls:"top"};
+  const pts=v.reduce((a,x)=>a+PTS[x],0);
+  if(k==="222") return {pts,name:"222",action:"Du verteilst das Bier.",cls:"give"};
+  if(k==="113") return {pts,name:"113",action:"113 ansagen! Du musst selbst trinken.",cls:"drink"};
+  return {pts,name:"",action:"",cls:""};
+}
+const dcfg=store.get("dice",{players:4,names:[]});
+let dg=null; // laufendes Spiel
+let diceAnim=false;
+function dieHTML(v,i,held,dis){return `<button class="die${held?" held":""}" data-die="${i}" ${dis?"disabled":""} aria-label="Würfel ${i+1}: ${v}${held?", festgehalten":""}"><span class="pips">${Array.from({length:9},(_,k)=>`<i style="${PIPS[v].includes(k)?"visibility:visible":""}"></i>`).join("")}</span></button>`}
+function wuerfel(){
+  if(!dg) return diceSetup();
+  if(dg.cur>=dg.order.length) return diceRoundEnd();
+  diceTurn();
+}
+function diceSetup(){
+  dcfg.names.length=dcfg.players;
+  app.innerHTML = bar("Drei Würfel") + `
+  <div class="card">
+    <div class="field"><span class="label">Spieler</span>
+      <div class="stepper"><button data-d="-1" aria-label="Weniger Spieler">−</button><output>${dcfg.players}</output><button data-d="1" aria-label="Mehr Spieler">+</button></div></div>
+    <div class="field"><span class="label">Namen in Würfelreihenfolge</span>
+      <div class="names">${Array.from({length:dcfg.players},(_,i)=>`<input type="text" id="dn${i}" data-i="${i}" placeholder="Spieler ${i+1}" value="${esc(dcfg.names[i]||"")}">`).join("")}</div></div>
+  </div>
+  <button class="btn block" id="go">Spiel starten</button>
+  <div class="card rules">
+    <span class="label">Regeln</span>
+    <p>Die <b>1</b> zählt 100, die <b>6</b> zählt 60, alle anderen Augen zählen ihre Augenzahl.</p>
+    <p>Wer anfängt, entscheidet, wie oft gewürfelt wird: ein-, zwei- oder dreimal. Alle anderen dürfen höchstens so oft würfeln. Zwischen den Würfen kannst du jederzeit Würfel zurückhalten, die nicht mehr mitgewürfelt werden.</p>
+    <p>Fallen in einem Wurf zwei Sechsen, wird eine 6 zur 1 gedreht.</p>
+    <p>Vor jeder Runde wird ein Glas halb voll mit Bier gefüllt. Wer am Ende die wenigsten Punkte hat, trinkt es und beginnt die nächste Runde.</p>
+    <p><b class="c-top">111</b> zählt 300 und ist der höchste Wurf: Glas komplett auffüllen.<br><b class="c-give">222</b>: Bier verteilen.<br><b class="c-drink">113</b>: ansagen und selbst trinken.</p>
+  </div>`;
+  app.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{dcfg.players=Math.min(12,Math.max(2,dcfg.players+ +b.dataset.d));store.set("dice",dcfg);diceSetup()});
+  app.querySelectorAll("[data-i]").forEach(i=>i.oninput=()=>{dcfg.names[i.dataset.i]=i.value;store.set("dice",dcfg)});
+  $("#go").onclick=()=>{
+    const names=Array.from({length:dcfg.players},(_,i)=>(dcfg.names[i]||"").trim()||`Spieler ${i+1}`);
+    dg={names,start:0,round:1}; diceNewRound();
+  };
+}
+function diceNewRound(){
+  dg.order=dg.names.map((_,i)=>dg.names[(dg.start+i)%dg.names.length]);
+  Object.assign(dg,{cur:0,max:3,rolls:0,v:[1,1,1],held:[false,false,false],results:[],glass:true});
+  wuerfel();
+}
+function diceTurn(){
+  const name=dg.order[dg.cur], first=dg.cur===0, s=diceScore(dg.v), left=dg.max-dg.rolls;
+  app.innerHTML = bar("Drei Würfel") + `
+  ${dg.glass?`<div class="glass"><b>Runde ${dg.round}:</b> ${dg.round===1?"Glas halb voll mit Bier füllen.":"Glas wieder halb voll füllen."}<button class="btn ghost" id="gl">Erledigt</button></div>`:""}
+  <div class="turn"><span class="label">${first?"Fängt an und legt die Würfe fest":`Höchstens ${dg.max} ${dg.max===1?"Wurf":"Würfe"}`}</span><h2>${esc(name)}</h2>
+    <span class="muted">Wurf ${dg.rolls} von ${dg.max}${first&&dg.rolls?" (du kannst jederzeit aufhören)":""}</span></div>
+  <div class="dice" id="dice">${dg.v.map((v,i)=>dieHTML(v,i,dg.held[i],!dg.rolls)).join("")}</div>
+  <div class="sum"><span class="label">Punkte</span><b id="sum">${dg.rolls?s.pts:"–"}</b></div>
+  ${dg.flip?`<div class="glass" style="border-color:var(--sky)">Zwei Sechsen in einem Wurf: Eine 6 wurde zur 1 gedreht und festgehalten.</div>`:""}
+  ${dg.rolls&&s.name?`<div class="special ${s.cls}"><b>${s.name}</b><span>${s.action}</span></div>`:""}
+  <div class="row">
+    ${left>0?`<button class="btn" id="roll" style="font-size:1.2rem;padding:18px">${dg.rolls?"Nochmal würfeln":"Würfeln"}</button>`:""}
+    ${dg.rolls?`<button class="btn ghost" id="done">${dg.cur===dg.order.length-1?"Runde auswerten":"Fertig, weitergeben"}</button>`:""}
+  </div>
+  ${dg.rolls&&left>0?`<p class="muted" style="text-align:center;font-size:.9rem">Tippe auf einen Würfel, um ihn festzuhalten.</p>`:""}
+  ${dg.results.length?`<div class="field"><span class="label">Diese Runde</span><div class="hist">${dg.results.map(r=>`<div><span>${esc(r.who)}</span><span>${r.v.join(" · ")} = ${r.pts}</span></div>`).join("")}</div></div>`:""}`;
+  if(diceAnim){ $("#dice").querySelectorAll(".die").forEach((d,i)=>{ if(!dg.held[i]) d.classList.add("roll"); }); diceAnim=false; }
+  $("#gl")&&($("#gl").onclick=()=>{dg.glass=false;diceTurn()});
+  $("#dice").querySelectorAll("[data-die]").forEach(d=>d.onclick=()=>{ if(!dg.rolls||left<=0) return; dg.held[d.dataset.die]=!dg.held[d.dataset.die]; dg.flip=false; diceTurn(); });
+  $("#roll")&&($("#roll").onclick=()=>{
+    if(dg.held.every(Boolean)) return;
+    $("#roll").disabled=true; let n=0;
+    const iv=setInterval(()=>{
+      dg.v=dg.v.map((v,i)=>dg.held[i]?v:1+rand(6));
+      $("#dice").querySelectorAll(".die").forEach((d,i)=>{ if(!dg.held[i]) d.outerHTML=dieHTML(dg.v[i],i,false); });
+      if(++n>6){clearInterval(iv);
+        const fresh=[0,1,2].filter(i=>!dg.held[i]&&dg.v[i]===6);
+        dg.flip=false;
+        if(fresh.length>=2){ dg.v[fresh[0]]=1; dg.held[fresh[0]]=true; dg.flip=true; }
+        dg.rolls++; diceAnim=true; navigator.vibrate?.(30); diceTurn();}
+    },60);
+  });
+  $("#done")&&($("#done").onclick=diceEndTurn);
+  if(dg.rolls&&left<=0&&!$("#done")) diceEndTurn();
+}
+function diceEndTurn(){
+  const s=diceScore(dg.v);
+  dg.results.push({...s,who:dg.order[dg.cur],v:[...dg.v]});
+  if(dg.cur===0) dg.max=dg.rolls;
+  Object.assign(dg,{cur:dg.cur+1,rolls:0,v:[1,1,1],held:[false,false,false],glass:false,flip:false});
+  wuerfel();
+}
+function diceRoundEnd(){
+  const ranked=[...dg.results].sort((a,b)=>b.pts-a.pts);
+  const min=ranked[ranked.length-1].pts, losers=dg.results.filter(r=>r.pts===min);
+  app.innerHTML = bar("Drei Würfel") + `
+  <div class="turn"><span class="label">Runde ${dg.round} ausgewertet</span><h2>${esc(ranked[0].who)} hat den höchsten Wurf</h2></div>
+  <div class="hist ranking">${ranked.map((r,i)=>`<div><span>${i+1}. ${esc(r.who)}${r.cls?` <b class="c-${r.cls}">${r.name}</b>`:""}</span><span>${r.v.join(" · ")} = <b>${r.pts}</b></span></div>`).join("")}</div>
+  <div class="special drink"><span class="label">Niedrigster Wurf · ${min} Punkte</span><b>${losers.map(r=>esc(r.who)).join(" & ")}</b><span>${losers.length>1?"trinken das Glas":"trinkt das Glas"}. Danach wird aufgefüllt und ${esc(losers[0].who)} beginnt die nächste Runde.</span></div>
+  ${dg.results.filter(r=>r.cls).map(r=>`<div class="special ${r.cls}"><b>${r.name}</b><span style="font-weight:700">${esc(r.who)}</span><span>${r.action}</span></div>`).join("")}
+  <div class="row"><button class="btn" id="next">Nächste Runde</button><button class="btn ghost" id="end">Spieler ändern</button></div>`;
+  $("#next").onclick=()=>{dg.round++;dg.start=dg.names.indexOf(losers[0].who);diceNewRound()};
+  $("#end").onclick=()=>{dg=null;wuerfel()};
+}
+
+/* ---------- Tic-Tac-Toe ---------- */
+let ttt={b:Array(9).fill(""),turn:"X",score:{X:0,O:0,D:0},start:"X",over:false};
+const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function tictactoe(){
+  app.innerHTML = bar("Tic-Tac-Toe") + `
+  <div class="score"><div><span class="label">Spieler</span><b class="sx">✕ ${ttt.score.X}</b></div><div><span class="label">Unent.</span><b>${ttt.score.D}</b></div><div><span class="label">Spieler</span><b class="so">○ ${ttt.score.O}</b></div></div>
+  <div class="status" id="st"></div>
+  <div class="board" id="board">${ttt.b.map((v,i)=>`<button class="cell ${v.toLowerCase()}" data-c="${i}" aria-label="Feld ${i+1}">${v==="X"?"✕":v==="O"?"○":""}</button>`).join("")}</div>
+  <div class="row"><button class="btn" id="new">Neue Runde</button><button class="btn ghost" id="reset">Punkte zurücksetzen</button></div>`;
+  const win=LINES.find(l=>ttt.b[l[0]]&&l.every(i=>ttt.b[i]===ttt.b[l[0]]));
+  if(win) win.forEach(i=>app.querySelector(`[data-c="${i}"]`).classList.add("win"));
+  $("#st").innerHTML = win? `<span class="${ttt.b[win[0]]==="X"?"sx":"so"}">${ttt.b[win[0]]==="X"?"✕":"○"} gewinnt!</span>` : ttt.b.every(Boolean)? "Unentschieden" : `<span class="${ttt.turn==="X"?"sx":"so"}">${ttt.turn==="X"?"✕":"○"}</span> ist dran`;
+  app.querySelectorAll("[data-c]").forEach(c=>c.onclick=()=>{
+    const i=+c.dataset.c; if(ttt.over||ttt.b[i]) return;
+    ttt.b[i]=ttt.turn;
+    const w=LINES.find(l=>l.every(k=>ttt.b[k]===ttt.turn));
+    if(w){ttt.score[ttt.turn]++;ttt.over=true;} else if(ttt.b.every(Boolean)){ttt.score.D++;ttt.over=true;}
+    else ttt.turn=ttt.turn==="X"?"O":"X";
+    tictactoe();
+  });
+  $("#new").onclick=()=>{ttt.start=ttt.start==="X"?"O":"X";ttt.b=Array(9).fill("");ttt.turn=ttt.start;ttt.over=false;tictactoe()};
+  $("#reset").onclick=()=>{ttt.score={X:0,O:0,D:0};tictactoe()};
+}
+
+/* ---------- Ich hab noch nie / Wahrheit oder Pflicht ---------- */
+const decks={never:shuffle(NEVER),truth:shuffle(TRUTH),dare:shuffle(DARE)};
+function draw(kind){ if(!decks[kind].length) decks[kind]=shuffle({never:NEVER,truth:TRUTH,dare:DARE}[kind]); return decks[kind].pop(); }
+let nieCard={kind:"never",text:draw("never")};
+function nie(){
+  const L={never:"Ich hab noch nie",truth:"Wahrheit",dare:"Pflicht"};
+  app.innerHTML = bar("Ich hab noch nie") + `
+  <div class="prompt ${nieCard.kind}"><span class="label">${L[nieCard.kind]}</span><p class="q">${esc(nieCard.text)}</p></div>
+  <button class="btn block" data-k="never">Ich hab noch nie …</button>
+  <div class="row"><button class="btn ghost" data-k="truth">Wahrheit</button><button class="btn coral" data-k="dare">Pflicht</button></div>
+  <p class="muted" style="font-size:.9rem">Bei „Ich hab noch nie“ trinkt oder punktet jeder, der es schon mal gemacht hat.</p>`;
+  app.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{nieCard={kind:b.dataset.k,text:draw(b.dataset.k)};nie()});
+}
+
+</script>
+<script src="config.js"></script>
+<script src="net.js"></script>
+<script src="online.js"></script>
+<script>
+if("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
