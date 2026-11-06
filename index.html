@@ -71,7 +71,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .online p{color:#4a3300}
 .tile:disabled{cursor:default}
 .tile.wide{grid-column:1/-1;min-height:0}
-.t-imp .glyph{color:var(--coral)} .t-dice .glyph{color:var(--marigold)} .t-ttt .glyph{color:var(--sky)} .t-nie .glyph{color:var(--mint)}
+.t-imp .glyph{color:var(--coral)} .t-dice .glyph{color:var(--marigold)} .t-ttt .glyph{color:var(--sky)} .t-nie .glyph{color:var(--mint)} .t-slide .glyph{color:#9ad9f5}
+.iceslot{display:flex;justify-content:center}
+canvas.ice{border-radius:14px;touch-action:none;box-shadow:0 0 0 3px var(--panel-2);display:block}
 .pill{align-self:flex-start;margin-top:auto;display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--panel-2);color:var(--muted)}
 
 /* view chrome */
@@ -193,6 +195,7 @@ function home(){
     <a href="#wuerfel" class="tile t-dice" style="color:inherit;text-decoration:none"><span class="glyph">⚂⚄⚅</span><h3>Chicago</h3><p>1 zählt 100, 6 zählt 60. Wer 113 hat, trinkt.</p><span class="pill">2–12 Spieler</span></a>
     <a href="#tictactoe" class="tile t-ttt" style="color:inherit;text-decoration:none"><span class="glyph">✕○</span><h3>Tic-Tac-Toe</h3><p>Zu zweit, mit Punktestand.</p><span class="pill">2 Spieler</span></a>
     <a href="#nie" class="tile t-nie" style="color:inherit;text-decoration:none"><span class="glyph">!</span><h3>Ich hab noch nie</h3><p>Party, Ü18 oder Casual. Plus Wahrheit oder Pflicht.</p><span class="pill">${NEVER.length+TRUTH.length+DARE.length} Karten</span></a>
+    <a href="#gleiter" class="tile t-slide wide" style="color:inherit;text-decoration:none"><span class="glyph">◉</span><h3>Gleitstein</h3><p>Steine übers Eis schnippen, gegnerische wegschießen. Team Rot gegen Team Gelb.</p><span class="pill">2 Teams</span></a>
   </nav>`;
 }
 
@@ -424,6 +427,7 @@ function nie(){
 </script>
 <script src="config.js"></script>
 <script src="net.js"></script>
+<script src="slide.js"></script>
 <script src="online.js"></script>
 <script>
 if("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
